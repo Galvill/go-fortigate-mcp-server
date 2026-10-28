@@ -50,7 +50,31 @@ type Options struct {
 	// RetryBackoff is the base delay between GET retries.
 	RetryBackoff time.Duration
 	Logger       *slog.Logger
+	// ReadOnly makes the client refuse every request except GET.
+	ReadOnly bool
+	// Observer, if set, is called after every non-GET request, whether it
+	// succeeded or not. The server uses it for the audit log.
+	Observer func(context.Context, Call)
 }
+
+// Call describes a completed non-GET request, for auditing.
+type Call struct {
+	Device string
+	Method string
+	// Path is the API path after /api/v2/, including the escaped mkey.
+	Path string
+	Mkey string
+	VDOM string
+	// Body is the JSON request body, if any.
+	Body       []byte
+	HTTPStatus int
+	Revision   string
+	Duration   time.Duration
+	Err        error
+}
+
+// ErrReadOnly is returned for write requests to a read-only device.
+var ErrReadOnly = errors.New("fortios: device is configured read-only")
 
 // Client talks to one FortiGate. It is safe for concurrent use.
 type Client struct {
@@ -62,6 +86,8 @@ type Client struct {
 	sem          chan struct{}
 	retryBackoff time.Duration
 	logger       *slog.Logger
+	readOnly     bool
+	observer     func(context.Context, Call)
 
 	mu   sync.Mutex
 	info *Info
@@ -110,6 +136,8 @@ func New(opts Options) (*Client, error) {
 		sem:          make(chan struct{}, orDefault(opts.MaxConcurrent, defaultMaxConcurrent)),
 		retryBackoff: orDefault(opts.RetryBackoff, defaultRetryBackoff),
 		logger:       opts.Logger,
+		readOnly:     opts.ReadOnly,
+		observer:     opts.Observer,
 	}
 	if c.logger == nil {
 		c.logger = slog.New(slog.DiscardHandler)
@@ -187,6 +215,8 @@ type request struct {
 	mkey   string
 	params *Params
 	body   any
+	// raw accepts a non-JSON success body (e.g. a config backup) in Response.Raw.
+	raw bool
 }
 
 // apiPath is the request path after /api/v2/, with mkey escaped.
@@ -202,6 +232,9 @@ func (c *Client) do(ctx context.Context, r request) (*Response, error) {
 	if err := ValidatePath(r.path); err != nil {
 		return nil, err
 	}
+	if r.method != http.MethodGet && c.readOnly {
+		return nil, ErrReadOnly
+	}
 	var body []byte
 	if r.body != nil {
 		var err error
@@ -209,10 +242,37 @@ func (c *Client) do(ctx context.Context, r request) (*Response, error) {
 			return nil, fmt.Errorf("fortios: encoding request body: %w", err)
 		}
 	}
+	query := c.query(r.params)
 	target := c.baseURL + "/api/v2/" + r.apiPath()
-	if q := c.query(r.params).Encode(); q != "" {
+	if q := query.Encode(); q != "" {
 		target += "?" + q
 	}
+	if r.method != http.MethodGet && c.observer != nil {
+		start := time.Now()
+		var resp *Response
+		var err error
+		defer func() {
+			call := Call{
+				Device: c.name, Method: r.method, Path: r.apiPath(), Mkey: r.mkey,
+				VDOM: query.Get("vdom"), Body: body, Duration: time.Since(start), Err: err,
+			}
+			var apiErr *APIError
+			switch {
+			case err == nil:
+				call.HTTPStatus, call.Revision = cmp.Or(resp.HTTPStatus, http.StatusOK), resp.Revision
+			case errors.As(err, &apiErr):
+				call.HTTPStatus = apiErr.HTTPStatus
+			}
+			c.observer(ctx, call)
+		}()
+		resp, err = c.send(ctx, r, target, body)
+		return resp, err
+	}
+	return c.send(ctx, r, target, body)
+}
+
+// send acquires a concurrency slot and performs the request with retries.
+func (c *Client) send(ctx context.Context, r request, target string, body []byte) (*Response, error) {
 
 	select {
 	case c.sem <- struct{}{}:
@@ -297,6 +357,14 @@ func (c *Client) decode(r request, status int, data []byte) (*Response, error) {
 	apiErr := &APIError{Method: r.method, Path: r.apiPath(), HTTPStatus: status}
 
 	var resp Response
+	if r.raw && status < 400 {
+		// A JSON body here is an error envelope; anything else is the payload.
+		if json.Unmarshal(data, &resp) == nil && resp.Status == "error" {
+			apiErr.Code, apiErr.Message = int(resp.Error), resp.CLIError
+			return nil, apiErr
+		}
+		return &Response{HTTPStatus: status, Raw: data}, nil
+	}
 	if len(bytes.TrimSpace(data)) == 0 || json.Unmarshal(data, &resp) != nil {
 		if status >= 400 {
 			return nil, apiErr

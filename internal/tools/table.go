@@ -23,6 +23,8 @@ type Table struct {
 	NumericKey bool
 	// About is appended to the list tool's description.
 	About string
+	// Fields describes the main fields, for create and update tool descriptions.
+	Fields string
 }
 
 // AddressFamily is embedded in inputs of tables with IPv4/IPv6 variants.

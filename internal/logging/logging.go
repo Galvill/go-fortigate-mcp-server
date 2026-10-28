@@ -74,3 +74,29 @@ func redact(_ []string, a slog.Attr) slog.Attr {
 	}
 	return a
 }
+
+// Redact replaces, in place, the values of sensitive fields (passwords,
+// PSKs, keys) anywhere in a decoded JSON value. Encrypted FortiOS secrets
+// are redacted too. Empty values are left as they are.
+func Redact(v any) any {
+	switch v := v.(type) {
+	case map[string]any:
+		for k, val := range v {
+			if IsSensitiveKey(k) {
+				if val != nil && val != "" {
+					v[k] = Redacted
+				}
+				continue
+			}
+			v[k] = Redact(val)
+		}
+		return v
+	case []any:
+		for i := range v {
+			v[i] = Redact(v[i])
+		}
+		return v
+	default:
+		return v
+	}
+}

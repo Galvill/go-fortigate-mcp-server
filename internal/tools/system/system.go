@@ -117,6 +117,7 @@ func Register(r *tools.Registry) {
 	}, monitorHandler(r, "license/status", nil))
 
 	registerSessions(r)
+	registerSessionClear(r)
 	registerHA(r)
 	registerLogs(r)
 }
@@ -358,5 +359,46 @@ func registerLogs(r *tools.Registry) {
 		}
 		out, err := r.Results(tgt, resp)
 		return nil, out, err
+	})
+}
+
+// SessionClearInput is the input of fgt_session_clear.
+type SessionClearInput struct {
+	tools.Target
+	tools.Confirmation
+	All      bool   `json:"all,omitempty" jsonschema:"Clear every session in the VDOM. Disruptive: needs confirm."`
+	Protocol int    `json:"protocol,omitempty" jsonschema:"IP protocol number of the session to close: 6 TCP, 17 UDP, 1 ICMP."`
+	SrcAddr  string `json:"srcaddr,omitempty"`
+	DstAddr  string `json:"dstaddr,omitempty"`
+	SrcPort  int    `json:"srcport,omitempty"`
+	DstPort  int    `json:"dstport,omitempty"`
+}
+
+func registerSessionClear(r *tools.Registry) {
+	tools.AddWrite(r, tools.System, tools.Action, &mcp.Tool{
+		Name: "fgt_session_clear",
+		Description: "Close one firewall session, identified by protocol, source and destination address and port (see fgt_session_list), " +
+			"or with all set, clear every session in the VDOM. Clearing all is disruptive and needs hostname confirmation.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in SessionClearInput) (*mcp.CallToolResult, tools.DisruptiveOutput, error) {
+		tgt, err := r.ResolveWrite(in.Target)
+		if err != nil {
+			return nil, tools.DisruptiveOutput{}, err
+		}
+		if in.All {
+			out, err := r.RunDisruptive(ctx, tgt, in.Confirmation, "firewall/session/clear_all", nil,
+				"clear all firewall sessions in VDOM "+tgt.VDOM, "Every connection through the VDOM is dropped and must reconnect.", nil)
+			return nil, out, err
+		}
+		if in.Protocol == 0 || in.SrcAddr == "" || in.DstAddr == "" {
+			return nil, tools.DisruptiveOutput{}, fmt.Errorf("protocol, srcaddr and dstaddr are required to close one session (or set all)")
+		}
+		// TODO(M3): verify body field names against a FortiGate-VM.
+		out, err := r.Post(ctx, tgt, "firewall/session/close", map[string]any{
+			"pro": in.Protocol, "saddr": in.SrcAddr, "daddr": in.DstAddr, "sport": in.SrcPort, "dport": in.DstPort,
+		})
+		if err != nil {
+			return nil, tools.DisruptiveOutput{}, err
+		}
+		return nil, tools.DisruptiveOutput{Scope: out.Scope, Executed: true, Message: "Session closed.", Result: out.Result}, nil
 	})
 }

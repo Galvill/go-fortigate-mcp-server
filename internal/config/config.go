@@ -54,6 +54,12 @@ type Server struct {
 	ReadOnly bool
 	// MaxResultBytes caps the size of a tool result.
 	MaxResultBytes int
+	// AuditLog is the audit log file path; empty means stderr.
+	AuditLog string
+	// AuditBodies includes redacted request bodies in audit records.
+	AuditBodies bool
+	// BackupDir, if set, is where fgt_config_backup may save files.
+	BackupDir string
 }
 
 // DefaultMaxResultBytes is the default cap on a tool result's size.
@@ -113,6 +119,9 @@ var settings = []setting{
 	{flag: "toolsets", env: "FORTIGATE_MCP_TOOLSETS", def: "all", usage: "comma-separated toolsets to enable, or \"all\""},
 	{flag: "read-only", env: "FORTIGATE_MCP_READ_ONLY", def: "false", usage: "omit all mutating tools", boolean: true},
 	{flag: "max-result-bytes", env: "FORTIGATE_MCP_MAX_RESULT_BYTES", def: strconv.Itoa(DefaultMaxResultBytes), usage: "maximum size of a tool result in bytes"},
+	{flag: "audit-log", env: "FORTIGATE_MCP_AUDIT_LOG", usage: "audit log file (JSON lines); default stderr"},
+	{flag: "audit-bodies", env: "FORTIGATE_MCP_AUDIT_BODIES", def: "false", usage: "include request bodies, secrets redacted, in the audit log", boolean: true},
+	{flag: "backup-dir", env: "FORTIGATE_MCP_BACKUP_DIR", usage: "directory where config backups may be saved; disabled if unset"},
 }
 
 // Flags holds the server flags registered on a FlagSet.
@@ -185,6 +194,15 @@ func (f *Flags) Load(lookupEnv LookupEnv) (*Config, error) {
 	if cfg.Server.MaxResultBytes, err = strconv.Atoi(value("max-result-bytes")); err != nil || cfg.Server.MaxResultBytes < minMaxResultBytes {
 		return nil, fmt.Errorf("max-result-bytes: want an integer >= %d, got %q", minMaxResultBytes, value("max-result-bytes"))
 	}
+	cfg.Server.AuditLog = value("audit-log")
+	if cfg.Server.AuditBodies, err = strconv.ParseBool(value("audit-bodies")); err != nil {
+		return nil, fmt.Errorf("audit-bodies: invalid boolean %q", value("audit-bodies"))
+	}
+	if cfg.Server.BackupDir = value("backup-dir"); cfg.Server.BackupDir != "" {
+		if err := checkWritableDir(cfg.Server.BackupDir); err != nil {
+			return nil, fmt.Errorf("backup-dir: %w", err)
+		}
+	}
 
 	var file *fileConfig
 	if cfg.Server.ConfigFile != "" {
@@ -196,6 +214,24 @@ func (f *Flags) Load(lookupEnv LookupEnv) (*Config, error) {
 		return nil, err
 	}
 	return cfg, nil
+}
+
+// checkWritableDir verifies dir exists and files can be created in it.
+func checkWritableDir(dir string) error {
+	info, err := os.Stat(dir)
+	if err != nil {
+		return err
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("%s is not a directory", dir)
+	}
+	f, err := os.CreateTemp(dir, ".fortigate-mcp-check-*")
+	if err != nil {
+		return fmt.Errorf("%s is not writable: %w", dir, err)
+	}
+	name := f.Name()
+	_ = f.Close()
+	return os.Remove(name)
 }
 
 // getenv treats set-but-empty variables as unset.

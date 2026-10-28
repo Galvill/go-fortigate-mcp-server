@@ -69,6 +69,12 @@ func (c *Client) MonitorPost(ctx context.Context, path string, body any, p *Para
 	return c.do(ctx, request{method: http.MethodPost, api: "monitor", path: path, params: p, body: body})
 }
 
+// MonitorDownload calls a monitor endpoint that returns a file, such as
+// system/config/backup, and returns the body in Response.Raw.
+func (c *Client) MonitorDownload(ctx context.Context, path string, p *Params) (*Response, error) {
+	return c.do(ctx, request{method: http.MethodGet, api: "monitor", path: path, params: p, raw: true})
+}
+
 // LogGet reads log entries, e.g. path "disk/traffic/forward".
 func (c *Client) LogGet(ctx context.Context, path string, p *Params) (*Response, error) {
 	return c.do(ctx, request{method: http.MethodGet, api: "log", path: path, params: p})

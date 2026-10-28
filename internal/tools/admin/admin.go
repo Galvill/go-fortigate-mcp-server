@@ -33,11 +33,6 @@ func Register(r *tools.Registry) {
 		"List certificates available on the device (local, CA, remote), with subject, issuer and expiry.",
 		"system/available-certificates")
 
-	tools.RegisterTableReads(r, tools.Table{
-		Toolset: tools.Admin,
-		Prefix:  "fgt_admin",
-		Noun:    "administrator account",
-		Path:    "system/admin",
-		About:   "Passwords are never returned.",
-	})
+	tools.RegisterTableReads(r, admins)
+	registerLifecycle(r)
 }

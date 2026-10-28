@@ -3,9 +3,11 @@
 An [MCP](https://modelcontextprotocol.io) server, written in Go, for inspecting
 and managing FortiGate firewalls through the FortiOS REST API.
 
-> **Status:** early development (milestone M2). About 50 read-only tools for
-> monitoring, policies, objects, network, VPN and admin, plus generic CMDB and
-> monitor access. Write tools arrive in M3. See [docs/SPEC.md](docs/SPEC.md) for the design and
+> **Status:** early development (milestone M3). About 100 tools for
+> monitoring and managing policies, objects, network, VPN and admin, plus
+> generic CMDB and monitor access. Writes are audited; reboot, shutdown,
+> restore, firmware upgrade and clearing all sessions need the device's
+> hostname as confirmation. Not yet verified against real FortiGates. See [docs/SPEC.md](docs/SPEC.md) for the design and
 > [docs/PLAN.md](docs/PLAN.md) for the roadmap.
 
 ## Build
@@ -47,6 +49,9 @@ claude mcp add fortigate \
   -e FORTIGATE_HOST=https://10.0.0.1 -e FORTIGATE_API_TOKEN_FILE=/path/token \
   -- /path/to/bin/fortigate-mcp
 ```
+
+Run with `-read-only` (or per device `read_only: true` / `FORTIGATE_<NAME>_READ_ONLY=true`)
+to prevent changes. Writes are logged as JSON lines to stderr, or to `-audit-log FILE`.
 
 Limit the tool list with `-toolsets system,policy` (toolsets: system, policy,
 objects, network, vpn, admin, generic).

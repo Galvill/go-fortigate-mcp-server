@@ -2,6 +2,7 @@
 package toolstest
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/galvill/go-fortigate-mcp-server/internal/audit"
 	"github.com/galvill/go-fortigate-mcp-server/internal/config"
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
@@ -16,23 +18,41 @@ import (
 )
 
 // Env is a client session over tools backed by two fake FortiGates:
-// "fw" (the default device) and "fw2".
+// "fw" (the default device) and "fw2" (configured read-only). Writes are
+// recorded in the audit log.
 type Env struct {
 	FW, FW2 *fakefgt.Server
 	Session *mcp.ClientSession
+	audit   *bytes.Buffer
+}
+
+// Audit returns the audit records written so far.
+func (e *Env) Audit(t *testing.T) []audit.Record {
+	t.Helper()
+	var recs []audit.Record
+	for _, line := range strings.Split(strings.TrimSpace(e.audit.String()), "\n") {
+		if line == "" {
+			continue
+		}
+		var r audit.Record
+		if err := json.Unmarshal([]byte(line), &r); err != nil {
+			t.Fatalf("audit line %q: %v", line, err)
+		}
+		recs = append(recs, r)
+	}
+	return recs
 }
 
 // Connect registers tools with register and connects a client to them.
 func Connect(t *testing.T, register func(*tools.Registry), opts tools.Options) *Env {
 	t.Helper()
-	env := &Env{FW: fakefgt.New(t), FW2: fakefgt.New(t)}
+	env := &Env{FW: fakefgt.New(t), FW2: fakefgt.New(t), audit: &bytes.Buffer{}}
+	fw2 := Device(t, "fw2", env.FW2)
+	fw2.ReadOnly = true
 	inv, err := devices.New(&config.Config{
 		DefaultDevice: "fw",
-		Devices: []config.Device{
-			Device(t, "fw", env.FW),
-			Device(t, "fw2", env.FW2),
-		},
-	}, nil)
+		Devices:       []config.Device{Device(t, "fw", env.FW), fw2},
+	}, devices.Options{Observer: audit.New(env.audit, false, nil).Observe})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,6 +128,12 @@ func Call[Out any](t *testing.T, e *Env, name string, args map[string]any) Out {
 		t.Fatalf("%s: decoding output %s: %v", name, b, err)
 	}
 	return out
+}
+
+// CallMaybe calls a tool and ignores the outcome, for best-effort cleanup.
+func CallMaybe(t *testing.T, e *Env, name string, args map[string]any) {
+	t.Helper()
+	_, _ = e.Session.CallTool(context.Background(), &mcp.CallToolParams{Name: name, Arguments: args})
 }
 
 // CallError calls a tool that must fail and returns the error text.

@@ -13,6 +13,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/galvill/go-fortigate-mcp-server/internal/audit"
 	"github.com/galvill/go-fortigate-mcp-server/internal/config"
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
 	"github.com/galvill/go-fortigate-mcp-server/internal/logging"
@@ -58,7 +59,18 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 		return err
 	}
 
-	inv, err := devices.New(cfg, logger)
+	auditOut := stderr
+	if cfg.Server.AuditLog != "" {
+		f, err := os.OpenFile(cfg.Server.AuditLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+		if err != nil {
+			return fmt.Errorf("opening audit log: %w", err)
+		}
+		defer func() { _ = f.Close() }()
+		auditOut = f
+	}
+	auditLog := audit.New(auditOut, cfg.Server.AuditBodies, logger)
+
+	inv, err := devices.New(cfg, devices.Options{Logger: logger, Observer: auditLog.Observe})
 	if err != nil {
 		return err
 	}
@@ -74,6 +86,7 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 			Toolsets:       cfg.Server.Toolsets,
 			ReadOnly:       cfg.Server.ReadOnly,
 			MaxResultBytes: cfg.Server.MaxResultBytes,
+			BackupDir:      cfg.Server.BackupDir,
 		},
 	})
 	if err != nil {

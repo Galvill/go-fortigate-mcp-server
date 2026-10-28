@@ -186,30 +186,8 @@ func (r *Registry) Results(t devices.Target, resp *fortios.Response) (ResultsOut
 	return ResultsOutput{Scope: scope(t), Results: fitted, Truncated: cut}, nil
 }
 
-// Redact replaces, in place, the values of sensitive fields (passwords,
-// PSKs, keys) anywhere in v. Encrypted FortiOS secrets are redacted too.
-func Redact(v any) any {
-	switch v := v.(type) {
-	case map[string]any:
-		for k, val := range v {
-			if logging.IsSensitiveKey(k) {
-				if val != nil && val != "" {
-					v[k] = logging.Redacted
-				}
-				continue
-			}
-			v[k] = Redact(val)
-		}
-		return v
-	case []any:
-		for i := range v {
-			v[i] = Redact(v[i])
-		}
-		return v
-	default:
-		return v
-	}
-}
+// Redact replaces, in place, the values of sensitive fields anywhere in v.
+func Redact(v any) any { return logging.Redact(v) }
 
 // overhead leaves room for the envelope around items in a result.
 const overhead = 512

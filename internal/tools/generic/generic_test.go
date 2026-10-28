@@ -51,3 +51,59 @@ func TestSchemaAndMonitor(t *testing.T) {
 	toolstest.ExpectError(t, env, "fgt_monitor_get", map[string]any{"path": "system/status", "params": map[string]string{"vdom": "x"}}, "vdom argument")
 	toolstest.ExpectError(t, env, "fgt_monitor_get", map[string]any{"path": "nope/missing"}, "HTTP 404")
 }
+
+func TestCMDBWrites(t *testing.T) {
+	env := toolstest.Connect(t, generic.Register, tools.Options{})
+	env.FW.SetSingleton("root", "system/dns", map[string]any{"primary": "8.8.8.8"})
+
+	out := toolstest.Call[tools.WriteOutput](t, env, "fgt_cmdb_create", map[string]any{"path": "user/local", "fields": map[string]any{"name": "carol", "type": "password"}})
+	if out.Mkey != "carol" || out.Item["type"] != "password" {
+		t.Errorf("create = %+v", out)
+	}
+	out = toolstest.Call[tools.WriteOutput](t, env, "fgt_cmdb_update", map[string]any{"path": "user/local", "mkey": "carol", "fields": map[string]any{"status": "disable"}})
+	if out.Item["status"] != "disable" {
+		t.Errorf("update = %+v", out)
+	}
+	out = toolstest.Call[tools.WriteOutput](t, env, "fgt_cmdb_update", map[string]any{"path": "system/dns", "fields": map[string]any{"primary": "1.1.1.1"}})
+	if out.Item["primary"] != "1.1.1.1" {
+		t.Errorf("singleton update = %+v", out)
+	}
+	toolstest.Call[tools.DeleteOutput](t, env, "fgt_cmdb_delete", map[string]any{"path": "user/local", "mkey": "carol"})
+
+	toolstest.ExpectError(t, env, "fgt_cmdb_create", map[string]any{"path": "user/local", "mkey": "x", "fields": map[string]any{"name": "x"}}, "mkey is for updates")
+	toolstest.ExpectError(t, env, "fgt_cmdb_delete", map[string]any{"path": "user/local", "mkey": ""}, "mkey is required")
+	toolstest.ExpectError(t, env, "fgt_cmdb_create", map[string]any{"path": "../x", "fields": map[string]any{"a": 1}}, "invalid API path")
+}
+
+func TestMonitorPostConfirmation(t *testing.T) {
+	env := toolstest.Connect(t, generic.Register, tools.Options{})
+	env.FW.SetMonitor("user/firewall/deauth", map[string]any{})
+	env.FW.SetMonitor("system/os/reboot", map[string]any{})
+
+	out := toolstest.Call[tools.DisruptiveOutput](t, env, "fgt_monitor_post", map[string]any{"path": "user/firewall/deauth", "body": map[string]any{"user_type": "fsso"}})
+	if !out.Executed {
+		t.Errorf("non-disruptive post = %+v", out)
+	}
+
+	// The generic tool must not be a way around confirmation.
+	out = toolstest.Call[tools.DisruptiveOutput](t, env, "fgt_monitor_post", map[string]any{"path": "system/os/reboot"})
+	if out.Executed || out.Preview == nil {
+		t.Errorf("reboot via monitor_post without confirm = %+v", out)
+	}
+	for _, r := range env.FW.Requests() {
+		if r.Path == "monitor/system/os/reboot" {
+			t.Fatal("reboot reached the device without confirmation")
+		}
+	}
+	toolstest.ExpectError(t, env, "fgt_monitor_post", map[string]any{"path": "system//os/reboot"}, "invalid API path")
+	toolstest.ExpectError(t, env, "fgt_monitor_post", map[string]any{"path": "system/os/../os/reboot"}, "invalid API path")
+
+	out = toolstest.Call[tools.DisruptiveOutput](t, env, "fgt_monitor_post", map[string]any{"path": "system/os/reboot", "confirm": "FGVM-FAKE"})
+	if !out.Executed {
+		t.Errorf("confirmed reboot = %+v", out)
+	}
+	recs := env.Audit(t)
+	if last := recs[len(recs)-1]; last.Path != "monitor/system/os/reboot" || last.ConfirmedHostname != "FGVM-FAKE" || last.Tool != "fgt_monitor_post" {
+		t.Errorf("audit = %+v", last)
+	}
+}

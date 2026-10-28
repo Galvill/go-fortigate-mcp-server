@@ -33,6 +33,8 @@ type Response struct {
 	Build           int             `json:"build"`
 	Error           ErrorCode       `json:"error"`
 	CLIError        string          `json:"cli_error"`
+	// Raw is the body of a non-JSON download, such as a config backup.
+	Raw []byte `json:"-"`
 }
 
 // Decode unmarshals Results into v.

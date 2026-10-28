@@ -37,20 +37,22 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 
 **Done when:** "Would 10.1.1.5 → 8.8.8.8:443 be allowed on hq, and which policy matches?" works end-to-end against a real FortiGate-VM.
 
-## M3 — Write tools + audit (3–4 days)
+## M3 — Write tools + audit (3–4 days) — built; VM acceptance pending
 
-- [ ] `internal/audit` JSON-lines writer, hooked into a shared "mutating call" wrapper
-- [ ] Policy create/update/delete/move
-- [ ] Object CRUD for all types, plus group `add_members`/`remove_members` (read-modify-write)
-- [ ] Network writes (interfaces, static routes, SD-WAN)
-- [ ] VPN writes (phase1/phase2, tunnel up/down, SSL-VPN disconnect/settings, version gating)
-- [ ] Admin writes (admins, backup (inline by default, to disk when `--backup-dir` is set), restore, firmware upgrade, reboot/shutdown)
-- [ ] `fgt_session_clear`, generic `fgt_cmdb_create/update/delete`, `fgt_monitor_post`
-- [ ] Per-device `read_only` enforcement
-- [ ] Hostname confirmation (SPEC §7.1.1): shared wrapper for ⚠ tools, preview builder (status + HA + firmware target), path matcher for `fgt_monitor_post`, audit `confirmed_hostname`; tests for missing/mismatched/matching confirm and generic-tool bypass attempts
+- [x] `internal/audit` JSON-lines writer, fed by an observer in the FortiOS client so every non-GET request is recorded, tagged by `AddWrite` with tool and session
+- [x] Policy create (typed fields, optional placement)/update/delete/move
+- [x] Object CRUD for all types, plus group `add_members`/`remove_members` (read-modify-write)
+- [x] Network writes (interfaces, static routes, SD-WAN)
+- [x] VPN writes (phase1/phase2, tunnel up/down, SSL-VPN disconnect/settings, version gating)
+- [x] Admin writes (admins, backup (inline by default, to disk when `--backup-dir` is set), restore, firmware upgrade, reboot/shutdown)
+- [x] `fgt_session_clear`, generic `fgt_cmdb_create/update/delete`, `fgt_monitor_post`
+- [x] Per-device `read_only` enforcement (in the FortiOS client, so no write can reach the device, plus a clear tool error)
+- [x] Hostname confirmation (SPEC §7.1.1): shared wrapper for ⚠ tools, preview builder (status + HA + firmware target), path matcher for `fgt_monitor_post`, audit `confirmed_hostname`; tests for missing/mismatched/matching confirm and generic-tool bypass attempts
 
 - [ ] Record monitor/CMDB fixtures from 7.2/7.4/7.6 VMs into `test/fakefgt` and validate the FortiOS error-code table (`internal/fortios/response.go`)
-- [ ] Verify endpoints and parameters marked `TODO(M3)` or unverified: `fgt_policy_lookup` parameters and protocol encoding, `fgt_object_usage` (`monitor/system/object/usage`), `fgt_session_list` filters, `fgt_arp_table` (`monitor/network/arp`)
+- [x] Integration suite (`test/integration`, `-tags integration`) for the acceptance flow below
+- [ ] Run the integration suite on 7.2, 7.4 and 7.6 VMs
+- [ ] Verify endpoints and parameters marked `TODO(M3)` or unverified: `fgt_policy_lookup` parameters and protocol encoding, `fgt_object_usage` (`monitor/system/object/usage`), `fgt_session_list` filters, `fgt_arp_table` (`monitor/network/arp`), request bodies of session close, tunnel up/down, SSL-VPN disconnect, firmware upgrade and config restore, whether 7.6 needs POST for config backup, and renaming entries via PUT
 
 **Done when:** integration suite creates an address → group → policy → moves it → deletes all, with audit records, on 7.2, 7.4 and 7.6 VMs.
 

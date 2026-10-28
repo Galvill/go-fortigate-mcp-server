@@ -31,3 +31,33 @@ func TestSSLVPNUnavailable(t *testing.T) {
 		t.Errorf("sessions = %v", out.Results)
 	}
 }
+
+func TestTunnelActions(t *testing.T) {
+	env := toolstest.Connect(t, vpn.Register, tools.Options{})
+	env.FW.SetMonitor("vpn/ipsec/tunnel_up", map[string]any{})
+	env.FW.SetMonitor("vpn/ipsec/tunnel_down", map[string]any{})
+
+	toolstest.Call[tools.PostOutput](t, env, "fgt_ipsec_tunnel_up", map[string]any{"phase1": "to-branch", "phase2": "p2"})
+	toolstest.Call[tools.PostOutput](t, env, "fgt_ipsec_tunnel_down", map[string]any{"phase1": "to-branch"})
+	reqs := env.FW.Requests()
+	if reqs[0].Path != "monitor/vpn/ipsec/tunnel_up" || string(reqs[0].Body) != `{"p1name":"to-branch","p2name":"p2"}` {
+		t.Errorf("up = %s %s", reqs[0].Path, reqs[0].Body)
+	}
+	if reqs[1].Path != "monitor/vpn/ipsec/tunnel_down" || string(reqs[1].Body) != `{"p1name":"to-branch"}` {
+		t.Errorf("down = %s %s", reqs[1].Path, reqs[1].Body)
+	}
+	toolstest.ExpectError(t, env, "fgt_ipsec_tunnel_up", map[string]any{"phase1": ""}, "phase1 is required")
+}
+
+func TestPhase1Write(t *testing.T) {
+	env := toolstest.Connect(t, vpn.Register, tools.Options{})
+	out := toolstest.Call[tools.WriteOutput](t, env, "fgt_ipsec_phase1_create", map[string]any{
+		"name": "to-dc", "fields": map[string]any{"interface": "port1", "remote-gw": "198.51.100.1", "psksecret": "s3cret"},
+	})
+	if out.Item["psksecret"] != "[REDACTED]" || out.Item["remote-gw"] != "198.51.100.1" {
+		t.Errorf("create = %+v", out)
+	}
+	if recs := env.Audit(t); len(recs) != 1 || recs[0].Body != nil {
+		t.Errorf("audit must not include bodies by default: %+v", recs)
+	}
+}

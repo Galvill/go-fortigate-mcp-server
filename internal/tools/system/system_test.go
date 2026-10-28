@@ -22,7 +22,7 @@ func connect(t *testing.T) *toolstest.Env {
 func TestDeviceList(t *testing.T) {
 	fgt := fakefgt.New(t)
 	dead := config.Device{Name: "dead", Host: "https://127.0.0.1:1", Token: "t", VDOM: "root", Timeout: config.DefaultTimeout}
-	inv, err := devices.New(&config.Config{Devices: []config.Device{dead, toolstest.Device(t, "lab", fgt)}}, nil)
+	inv, err := devices.New(&config.Config{Devices: []config.Device{dead, toolstest.Device(t, "lab", fgt)}}, devices.Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,4 +138,30 @@ func TestDeviceErrorIsToolError(t *testing.T) {
 	if err != nil || !res.IsError {
 		t.Fatalf("expected tool error, got %v %v", res, err)
 	}
+}
+
+func TestSessionClear(t *testing.T) {
+	env := connect(t)
+	env.FW.SetMonitor("firewall/session/close", map[string]any{})
+	env.FW.SetMonitor("firewall/session/clear_all", map[string]any{})
+
+	out := toolstest.Call[tools.DisruptiveOutput](t, env, "fgt_session_clear", map[string]any{
+		"protocol": 6, "srcaddr": "10.0.0.5", "dstaddr": "8.8.8.8", "srcport": 50000, "dstport": 443,
+	})
+	if !out.Executed {
+		t.Errorf("close = %+v", out)
+	}
+	if body := string(env.FW.Requests()[0].Body); !strings.Contains(body, `"saddr":"10.0.0.5"`) || !strings.Contains(body, `"pro":6`) {
+		t.Errorf("close body = %s", body)
+	}
+
+	all := toolstest.Call[tools.DisruptiveOutput](t, env, "fgt_session_clear", map[string]any{"all": true})
+	if all.Executed || all.Preview == nil {
+		t.Errorf("clear all without confirm = %+v", all)
+	}
+	all = toolstest.Call[tools.DisruptiveOutput](t, env, "fgt_session_clear", map[string]any{"all": true, "confirm": "FGVM-FAKE"})
+	if !all.Executed {
+		t.Errorf("clear all = %+v", all)
+	}
+	toolstest.ExpectError(t, env, "fgt_session_clear", map[string]any{"protocol": 6}, "required")
 }

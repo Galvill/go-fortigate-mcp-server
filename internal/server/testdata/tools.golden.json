@@ -1,6 +1,136 @@
 [
   {
     "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a firewall address object. Main fields: type (ipmask, iprange, fqdn, geography, wildcard), subnet (\"10.0.0.0 255.255.255.0\" or \"10.0.0.0/24\"), start-ip and end-ip (iprange), fqdn, country (geography), associated-interface, comment. IPv6: ip6 (\"2001:db8::/64\"), start-ip, end-ip, fqdn. Use fgt_cmdb_schema with path firewall/address for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_address_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a firewall address object. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_address_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -144,6 +274,297 @@
         "items",
         "total",
         "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a firewall address object; fields not given keep their values. Main fields: type (ipmask, iprange, fqdn, geography, wildcard), subnet (\"10.0.0.0 255.255.255.0\" or \"10.0.0.0/24\"), start-ip and end-ip (iprange), fqdn, country (geography), associated-interface, comment. IPv6: ip6 (\"2001:db8::/64\"), start-ip, end-ip, fqdn. Use fgt_cmdb_schema with path firewall/address for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_address_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Add members to a firewall address group without resending the whole member list.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "members": {
+          "description": "Names of the members to add or remove.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "name": {
+          "description": "Name of the group.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "members"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_add_members",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "unchanged": {
+          "description": "Requested members that were already present (add) or absent (remove).",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a firewall address group. Main fields: member (list of {\"name\": \"\u003caddress\u003e\"}, at least one), comment. To change membership use fgt_addrgrp_add_members or fgt_addrgrp_remove_members. Use fgt_cmdb_schema with path firewall/addrgrp for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a firewall address group. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -299,6 +720,289 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Remove members from a firewall address group without resending the whole member list.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "members": {
+          "description": "Names of the members to add or remove.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "name": {
+          "description": "Name of the group.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "members"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_remove_members",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "unchanged": {
+          "description": "Requested members that were already present (add) or absent (remove).",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a firewall address group; fields not given keep their values. Main fields: member (list of {\"name\": \"\u003caddress\u003e\"}, at least one), comment. To change membership use fgt_addrgrp_add_members or fgt_addrgrp_remove_members. Use fgt_cmdb_schema with path firewall/addrgrp for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a administrator account. Main fields: accprofile (e.g. super_admin, prof_admin), password (write-only), trusthost1..trusthost10 (\"10.0.0.0 255.255.255.0\"), vdom (list of {\"name\": \"root\"}), two-factor, email-to, comments. Use fgt_cmdb_schema with path system/admin for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_admin_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a administrator account. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_admin_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -440,6 +1144,75 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a administrator account; fields not given keep their values. Main fields: accprofile (e.g. super_admin, prof_admin), password (write-only), trusthost1..trusthost10 (\"10.0.0.0 255.255.255.0\"), vdom (list of {\"name\": \"root\"}), two-factor, email-to, comments. Use fgt_cmdb_schema with path system/admin for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_admin_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -522,6 +1295,138 @@
         "device",
         "vdom",
         "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create an entry in any CMDB table by path. Prefer a dedicated tool when one exists. Use fgt_cmdb_schema to discover fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values by FortiOS name (see fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Update only: name or ID of the entry. Omit for single-object tables such as system/dns.",
+          "type": "string"
+        },
+        "path": {
+          "description": "CMDB table path, e.g. user/local or system/dns.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_cmdb_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete an entry from any CMDB table by path. Check references first with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry to delete.",
+          "type": "string"
+        },
+        "path": {
+          "description": "CMDB table path.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "mkey"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_cmdb_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -675,6 +1580,293 @@
         "device",
         "vdom",
         "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of an entry in any CMDB table by path, or of a single-object table (omit mkey). Prefer a dedicated tool when one exists.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values by FortiOS name (see fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Update only: name or ID of the entry. Omit for single-object tables such as system/dns.",
+          "type": "string"
+        },
+        "path": {
+          "description": "CMDB table path, e.g. user/local or system/dns.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_cmdb_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Back up the device configuration. By default returns the text inline; use sections to return only parts (e.g. firewall policy), or destination disk to save the full file on the server when a backup directory is configured.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "destination": {
+          "description": "inline (default): return the configuration text. disk: save the full file on the server (only when the server has a backup directory).",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "scope": {
+          "description": "global (default): the whole device. vdom: only the VDOM given by the vdom argument.",
+          "type": "string"
+        },
+        "sections": {
+          "description": "Inline only: return just these top-level sections, e.g. [\"firewall policy\", \"system interface\"].",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_config_backup",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "config": {
+          "description": "Configuration text (inline destination).",
+          "type": "string"
+        },
+        "config_scope": {
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "file": {
+          "description": "Name of the saved file in the server's backup directory (disk destination).",
+          "type": "string"
+        },
+        "missing_sections": {
+          "description": "Requested sections not found in the configuration.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "sha256": {
+          "description": "SHA-256 of the full configuration, even when only sections are returned.",
+          "type": "string"
+        },
+        "size": {
+          "description": "Size of the full configuration in bytes.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if the text was cut to fit the size limit; request sections or use disk.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "config_scope",
+        "sha256",
+        "size"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Restore a configuration file saved by fgt_config_backup in the server's backup directory. Replaces the running configuration and reboots the device. Needs hostname confirmation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "confirm": {
+          "description": "Hostname of the target FortiGate, to confirm this disruptive action. Call once without it to get a preview showing the hostname, then call again with confirm set to it. Take the hostname from the preview or the user, never guess it.",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "file": {
+          "description": "Name of a backup file in the server's backup directory, as returned by fgt_config_backup.",
+          "type": "string"
+        },
+        "scope": {
+          "description": "global (default) or vdom. Must match how the file was backed up.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_config_restore",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "executed": {
+          "description": "False when only a preview was returned.",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "preview": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "device": {
+              "type": "string"
+            },
+            "ha_members": {
+              "description": "Cluster members, when in HA.",
+              "type": "integer"
+            },
+            "ha_mode": {
+              "description": "standalone, a-p or a-a.",
+              "type": "string"
+            },
+            "hostname": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mismatch": {
+              "description": "The confirm value given, when it did not match the hostname.",
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "vdom": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "hostname",
+            "vdom",
+            "action",
+            "impact"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "result": {
+          "description": "The device's response, when executed."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "executed",
+        "message"
       ],
       "type": "object"
     }
@@ -885,6 +2077,124 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Upgrade the firmware to an image from FortiGuard (see fgt_firmware_info for available images). The device reboots. Needs hostname confirmation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "confirm": {
+          "description": "Hostname of the target FortiGate, to confirm this disruptive action. Call once without it to get a preview showing the hostname, then call again with confirm set to it. Take the hostname from the preview or the user, never guess it.",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "image_id": {
+          "description": "ID of an available image from fgt_firmware_info.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "image_id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_firmware_upgrade",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "executed": {
+          "description": "False when only a preview was returned.",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "preview": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "device": {
+              "type": "string"
+            },
+            "ha_members": {
+              "description": "Cluster members, when in HA.",
+              "type": "integer"
+            },
+            "ha_mode": {
+              "description": "standalone, a-p or a-a.",
+              "type": "string"
+            },
+            "hostname": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mismatch": {
+              "description": "The confirm value given, when it did not match the hostname.",
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "vdom": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "hostname",
+            "vdom",
+            "action",
+            "impact"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "result": {
+          "description": "The device's response, when executed."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "executed",
+        "message"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -925,6 +2235,128 @@
         "vdom",
         "peers",
         "checksums"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a interface configuration. Main fields: vdom (required on create), type (vlan, loopback, aggregate, tunnel, ...), interface (parent of a VLAN), vlanid, ip (\"10.1.1.1 255.255.255.0\"), allowaccess (\"ping https ssh\"), role (lan, wan, dmz, undefined), alias, status (up, down), description. Physical ports cannot be created or deleted. Use fgt_cmdb_schema with path system/interface for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_interface_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a interface configuration. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_interface_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -1120,6 +2552,205 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a interface configuration; fields not given keep their values. Main fields: vdom (required on create), type (vlan, loopback, aggregate, tunnel, ...), interface (parent of a VLAN), vlanid, ip (\"10.1.1.1 255.255.255.0\"), allowaccess (\"ping https ssh\"), role (lan, wan, dmz, undefined), alias, status (up, down), description. Physical ports cannot be created or deleted. Use fgt_cmdb_schema with path system/interface for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_interface_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a IP pool (source NAT). Main fields: type (overload, one-to-one, fixed-port-range, port-block-allocation), startip, endip, comments. Use fgt_cmdb_schema with path firewall/ippool for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ippool_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a IP pool (source NAT). It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ippool_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -1269,6 +2900,201 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a IP pool (source NAT); fields not given keep their values. Main fields: type (overload, one-to-one, fixed-port-range, port-block-allocation), startip, endip, comments. Use fgt_cmdb_schema with path firewall/ippool for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ippool_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a IPsec phase 1 (tunnel) configuration. Main fields: interface (outgoing), remote-gw, type (static, dynamic, ddns), ike-version (1, 2), peertype, psksecret (write-only), proposal (\"aes256-sha256\"), dhgrp (\"14 20\"), net-device, add-route, dpd, comments. Use fgt_cmdb_schema with path vpn.ipsec/phase1-interface for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase1_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a IPsec phase 1 (tunnel) configuration. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase1_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -1404,6 +3230,197 @@
         "items",
         "total",
         "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a IPsec phase 1 (tunnel) configuration; fields not given keep their values. Main fields: interface (outgoing), remote-gw, type (static, dynamic, ddns), ike-version (1, 2), peertype, psksecret (write-only), proposal (\"aes256-sha256\"), dhgrp (\"14 20\"), net-device, add-route, dpd, comments. Use fgt_cmdb_schema with path vpn.ipsec/phase1-interface for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase1_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a IPsec phase 2 (selector) configuration. Main fields: phase1name (required), proposal, pfs, dhgrp, src-subnet and dst-subnet (\"10.0.0.0 255.255.255.0\"), keylifeseconds, auto-negotiate, comments. Use fgt_cmdb_schema with path vpn.ipsec/phase2-interface for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase2_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a IPsec phase 2 (selector) configuration. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase2_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -1551,6 +3568,75 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a IPsec phase 2 (selector) configuration; fields not given keep their values. Main fields: phase1name (required), proposal, pfs, dhgrp, src-subnet and dst-subnet (\"10.0.0.0 255.255.255.0\"), keylifeseconds, auto-negotiate, comments. Use fgt_cmdb_schema with path vpn.ipsec/phase2-interface for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase2_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -1589,6 +3675,112 @@
         "device",
         "vdom",
         "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Bring an IPsec tunnel down (all phase 2 selectors, or one).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "phase1": {
+          "description": "Phase 1 (tunnel) name.",
+          "type": "string"
+        },
+        "phase2": {
+          "description": "Phase 2 name. Omit for all phase 2 selectors of the tunnel.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase1"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_tunnel_down",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "result": {
+          "description": "The device's response."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Bring an IPsec tunnel up (all phase 2 selectors, or one).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "phase1": {
+          "description": "Phase 1 (tunnel) name.",
+          "type": "string"
+        },
+        "phase2": {
+          "description": "Phase 2 name. Omit for all phase 2 selectors of the tunnel.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase1"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_tunnel_up",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "result": {
+          "description": "The device's response."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom"
       ],
       "type": "object"
     }
@@ -1774,6 +3966,136 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Call any FortiOS monitor action endpoint by path with a JSON body, e.g. user/firewall/deauth or system/dhcp/revoke. Prefer a dedicated tool when one exists. Disruptive endpoints (reboot, shutdown, restore, firmware, clearing all sessions) need hostname confirmation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "body": {
+          "additionalProperties": true,
+          "description": "JSON body for the action.",
+          "type": "object"
+        },
+        "confirm": {
+          "description": "Hostname of the target FortiGate, to confirm this disruptive action. Call once without it to get a preview showing the hostname, then call again with confirm set to it. Take the hostname from the preview or the user, never guess it.",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Query parameters.",
+          "type": "object"
+        },
+        "path": {
+          "description": "Monitor endpoint path after /api/v2/monitor/, e.g. user/firewall/deauth.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_monitor_post",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "executed": {
+          "description": "False when only a preview was returned.",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "preview": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "device": {
+              "type": "string"
+            },
+            "ha_members": {
+              "description": "Cluster members, when in HA.",
+              "type": "integer"
+            },
+            "ha_mode": {
+              "description": "standalone, a-p or a-a.",
+              "type": "string"
+            },
+            "hostname": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mismatch": {
+              "description": "The confirm value given, when it did not match the hostname.",
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "vdom": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "hostname",
+            "vdom",
+            "action",
+            "impact"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "result": {
+          "description": "The device's response, when executed."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "executed",
+        "message"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -1824,6 +4146,297 @@
         "device",
         "vdom",
         "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a firewall policy. New policies go to the end of the list, where earlier policies may shadow them; use before or after to place it. Requires srcintf, dstintf, srcaddr or srcaddr6, dstaddr or dstaddr6, service and action.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "description": "accept, deny or ipsec.",
+          "type": "string"
+        },
+        "after": {
+          "description": "Place the policy directly after the policy with this ID.",
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "application_list": {
+          "type": "string"
+        },
+        "av_profile": {
+          "type": "string"
+        },
+        "before": {
+          "description": "Place the policy directly before the policy with this ID.",
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "comments": {
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "dstaddr": {
+          "description": "IPv4 destination address objects, groups or VIPs.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "dstaddr6": {
+          "description": "IPv6 destination address objects or groups.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "dstintf": {
+          "description": "Outgoing interfaces or zones.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "enabled": {
+          "description": "Whether the policy is active.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "extra": {
+          "additionalProperties": true,
+          "description": "Any other policy fields, by FortiOS name (see fgt_cmdb_schema path firewall/policy). Typed fields take precedence.",
+          "type": "object"
+        },
+        "groups": {
+          "description": "User groups the policy applies to.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "ippool": {
+          "description": "Use the IP pools in poolname for source NAT.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "ips_sensor": {
+          "type": "string"
+        },
+        "logtraffic": {
+          "description": "all, utm or disable.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Policy name.",
+          "type": "string"
+        },
+        "nat": {
+          "description": "Source NAT to the outgoing interface address, or to IP pools when ippool is set.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "poolname": {
+          "description": "IP pools for source NAT.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "schedule": {
+          "description": "Schedule name. Defaults to always on create.",
+          "type": "string"
+        },
+        "service": {
+          "description": "Service objects or groups, e.g. [\"HTTPS\"], or ALL.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "srcaddr": {
+          "description": "IPv4 source address objects or groups. Use all for any.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "srcaddr6": {
+          "description": "IPv6 source address objects or groups.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "srcintf": {
+          "description": "Incoming interfaces or zones, e.g. [\"port1\"]. Use any for all.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "ssl_ssh_profile": {
+          "type": "string"
+        },
+        "users": {
+          "description": "Local or remote users the policy applies to.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "utm_status": {
+          "description": "Enable security profiles.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        },
+        "webfilter_profile": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_policy_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a firewall policy.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Numeric ID of the entry.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_policy_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -2111,6 +4724,428 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Move a firewall policy before or after another one. Policies are evaluated top to bottom; the first match wins.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "description": "Place the policy directly after the policy with this ID.",
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "before": {
+          "description": "Place the policy directly before the policy with this ID.",
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "id": {
+          "description": "ID of the policy to move.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_policy_move",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a firewall policy. Only the fields given change; list fields (srcaddr, service, ...) replace the whole list.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "description": "accept, deny or ipsec.",
+          "type": "string"
+        },
+        "application_list": {
+          "type": "string"
+        },
+        "av_profile": {
+          "type": "string"
+        },
+        "comments": {
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "dstaddr": {
+          "description": "IPv4 destination address objects, groups or VIPs.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "dstaddr6": {
+          "description": "IPv6 destination address objects or groups.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "dstintf": {
+          "description": "Outgoing interfaces or zones.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "enabled": {
+          "description": "Whether the policy is active.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "extra": {
+          "additionalProperties": true,
+          "description": "Any other policy fields, by FortiOS name (see fgt_cmdb_schema path firewall/policy). Typed fields take precedence.",
+          "type": "object"
+        },
+        "groups": {
+          "description": "User groups the policy applies to.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "id": {
+          "description": "ID of the policy to change.",
+          "type": "integer"
+        },
+        "ippool": {
+          "description": "Use the IP pools in poolname for source NAT.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "ips_sensor": {
+          "type": "string"
+        },
+        "logtraffic": {
+          "description": "all, utm or disable.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Policy name.",
+          "type": "string"
+        },
+        "nat": {
+          "description": "Source NAT to the outgoing interface address, or to IP pools when ippool is set.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "poolname": {
+          "description": "IP pools for source NAT.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "schedule": {
+          "description": "Schedule name. Defaults to always on create.",
+          "type": "string"
+        },
+        "service": {
+          "description": "Service objects or groups, e.g. [\"HTTPS\"], or ALL.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "srcaddr": {
+          "description": "IPv4 source address objects or groups. Use all for any.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "srcaddr6": {
+          "description": "IPv6 source address objects or groups.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "srcintf": {
+          "description": "Incoming interfaces or zones, e.g. [\"port1\"]. Use any for all.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "ssl_ssh_profile": {
+          "type": "string"
+        },
+        "users": {
+          "description": "Local or remote users the policy applies to.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "utm_status": {
+          "description": "Enable security profiles.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        },
+        "webfilter_profile": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_policy_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Reboot the device. It will be unreachable for several minutes. Needs hostname confirmation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "confirm": {
+          "description": "Hostname of the target FortiGate, to confirm this disruptive action. Call once without it to get a preview showing the hostname, then call again with confirm set to it. Take the hostname from the preview or the user, never guess it.",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Recorded in the device's event log.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_reboot",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "executed": {
+          "description": "False when only a preview was returned.",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "preview": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "device": {
+              "type": "string"
+            },
+            "ha_members": {
+              "description": "Cluster members, when in HA.",
+              "type": "integer"
+            },
+            "ha_mode": {
+              "description": "standalone, a-p or a-a.",
+              "type": "string"
+            },
+            "hostname": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mismatch": {
+              "description": "The confirm value given, when it did not match the hostname.",
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "vdom": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "hostname",
+            "vdom",
+            "action",
+            "impact"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "result": {
+          "description": "The device's response, when executed."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "executed",
+        "message"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -2202,6 +5237,70 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change the SD-WAN configuration. Top-level fields given replace their current values entirely: to change one member, health check or rule, read the configuration with fgt_sdwan_config_get, edit the list, and send the whole list. Main fields: status, zone, members, health-check, service.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values.",
+          "type": "object"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_sdwan_config_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -2238,6 +5337,128 @@
         "vdom",
         "health_checks",
         "members"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a custom firewall service. Main fields: protocol (TCP/UDP/SCTP, ICMP, ICMP6, IP), tcp-portrange and udp-portrange (\"443\", \"8000-8080\", \"80:1024-65535\" for dst:src), icmptype, protocol-number (IP), category, comment. Use fgt_cmdb_schema with path firewall.service/custom for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_service_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a custom firewall service. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_service_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -2385,6 +5606,285 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a custom firewall service; fields not given keep their values. Main fields: protocol (TCP/UDP/SCTP, ICMP, ICMP6, IP), tcp-portrange and udp-portrange (\"443\", \"8000-8080\", \"80:1024-65535\" for dst:src), icmptype, protocol-number (IP), category, comment. Use fgt_cmdb_schema with path firewall.service/custom for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_service_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Add members to a firewall service group without resending the whole member list.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "members": {
+          "description": "Names of the members to add or remove.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "name": {
+          "description": "Name of the group.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "members"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_add_members",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "unchanged": {
+          "description": "Requested members that were already present (add) or absent (remove).",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a firewall service group. Main fields: member (list of {\"name\": \"\u003cservice\u003e\"}), comment. To change membership use fgt_servicegrp_add_members or fgt_servicegrp_remove_members. Use fgt_cmdb_schema with path firewall.service/group for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a firewall service group. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -2526,6 +6026,294 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Remove members from a firewall service group without resending the whole member list.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "members": {
+          "description": "Names of the members to add or remove.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "name": {
+          "description": "Name of the group.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "members"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_remove_members",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "unchanged": {
+          "description": "Requested members that were already present (add) or absent (remove).",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a firewall service group; fields not given keep their values. Main fields: member (list of {\"name\": \"\u003cservice\u003e\"}), comment. To change membership use fgt_servicegrp_add_members or fgt_servicegrp_remove_members. Use fgt_cmdb_schema with path firewall.service/group for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Close one firewall session, identified by protocol, source and destination address and port (see fgt_session_list), or with all set, clear every session in the VDOM. Clearing all is disruptive and needs hostname confirmation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "all": {
+          "description": "Clear every session in the VDOM. Disruptive: needs confirm.",
+          "type": "boolean"
+        },
+        "confirm": {
+          "description": "Hostname of the target FortiGate, to confirm this disruptive action. Call once without it to get a preview showing the hostname, then call again with confirm set to it. Take the hostname from the preview or the user, never guess it.",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "dstaddr": {
+          "type": "string"
+        },
+        "dstport": {
+          "type": "integer"
+        },
+        "protocol": {
+          "description": "IP protocol number of the session to close: 6 TCP, 17 UDP, 1 ICMP.",
+          "type": "integer"
+        },
+        "srcaddr": {
+          "type": "string"
+        },
+        "srcport": {
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_session_clear",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "executed": {
+          "description": "False when only a preview was returned.",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "preview": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "device": {
+              "type": "string"
+            },
+            "ha_members": {
+              "description": "Cluster members, when in HA.",
+              "type": "integer"
+            },
+            "ha_mode": {
+              "description": "standalone, a-p or a-a.",
+              "type": "string"
+            },
+            "hostname": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mismatch": {
+              "description": "The confirm value given, when it did not match the hostname.",
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "vdom": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "hostname",
+            "vdom",
+            "action",
+            "impact"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "result": {
+          "description": "The device's response, when executed."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "executed",
+        "message"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -2606,6 +6394,170 @@
         "device",
         "vdom",
         "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Shut down the device. It stays down until someone powers it on locally. Needs hostname confirmation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "confirm": {
+          "description": "Hostname of the target FortiGate, to confirm this disruptive action. Call once without it to get a preview showing the hostname, then call again with confirm set to it. Take the hostname from the preview or the user, never guess it.",
+          "type": "string"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Recorded in the device's event log.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_shutdown",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "executed": {
+          "description": "False when only a preview was returned.",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "preview": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "device": {
+              "type": "string"
+            },
+            "ha_members": {
+              "description": "Cluster members, when in HA.",
+              "type": "integer"
+            },
+            "ha_mode": {
+              "description": "standalone, a-p or a-a.",
+              "type": "string"
+            },
+            "hostname": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mismatch": {
+              "description": "The confirm value given, when it did not match the hostname.",
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "vdom": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "hostname",
+            "vdom",
+            "action",
+            "impact"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "result": {
+          "description": "The device's response, when executed."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "executed",
+        "message"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Disconnect an SSL-VPN user session. Get the index from fgt_sslvpn_sessions.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "index": {
+          "description": "Session index from fgt_sslvpn_sessions.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_sslvpn_disconnect",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "result": {
+          "description": "The device's response."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom"
       ],
       "type": "object"
     }
@@ -2693,6 +6645,188 @@
         "device",
         "vdom",
         "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change SSL-VPN settings. Main fields: status, source-interface, port, tunnel-ip-pools, source-address, authentication-rule (replaces the whole list).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values.",
+          "type": "object"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_sslvpn_settings_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a IPv4 static route. Main fields: dst (\"10.20.0.0 255.255.0.0\"), gateway, device (outgoing interface), distance, priority, status, blackhole, comment. Use fgt_cmdb_schema with path router/static for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema). The ID is assigned by the device unless given.",
+          "type": "object"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_static_route_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a IPv4 static route. It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Numeric ID of the entry.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_static_route_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -2840,6 +6974,75 @@
   },
   {
     "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a IPv4 static route; fields not given keep their values. Main fields: dst (\"10.20.0.0 255.255.0.0\"), gateway, device (outgoing interface), distance, priority, status, blackhole, comment. Use fgt_cmdb_schema with path router/static for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values.",
+          "type": "object"
+        },
+        "id": {
+          "description": "Numeric ID of the entry to change.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_static_route_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
       "idempotentHint": true,
       "readOnlyHint": true
     },
@@ -2947,6 +7150,136 @@
         "version",
         "build",
         "serial"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Create a virtual IP (destination NAT). Main fields: extip (external IP), mappedip (list of {\"range\": \"10.0.0.5\"}), extintf (external interface or any), portforward (enable/disable), protocol (tcp, udp), extport, mappedport, comment. Use fgt_cmdb_schema with path firewall/vip for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field values as FortiOS expects them (see the tool description and fgt_cmdb_schema).",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the new entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_vip_create",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Delete a virtual IP (destination NAT). It must not be referenced by other objects; check with fgt_object_usage.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_vip_delete",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "description": "Name or ID of the deleted entry.",
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "deleted"
       ],
       "type": "object"
     }
@@ -3096,6 +7429,79 @@
         "items",
         "total",
         "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Change fields of a virtual IP (destination NAT); fields not given keep their values. Main fields: extip (external IP), mappedip (list of {\"range\": \"10.0.0.5\"}), extintf (external interface or any), portforward (enable/disable), protocol (tcp, udp), extport, mappedport, comment. Use fgt_cmdb_schema with path firewall/vip for all fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "description": "Fields to change; others keep their values. Set name to rename.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the entry to change.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "fields"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_vip_update",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "description": "The entry as stored on the device after the change.",
+          "type": "object"
+        },
+        "mkey": {
+          "description": "Name or ID of the entry.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Configuration revision after the change.",
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "mkey"
       ],
       "type": "object"
     }

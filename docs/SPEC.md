@@ -154,6 +154,7 @@ replaces a file `token_file`, and vice versa.
 | `--read-only` | `FORTIGATE_MCP_READ_ONLY` | `false` | Don't register mutating tools (optional kill switch) |
 | `--max-result-bytes` | `FORTIGATE_MCP_MAX_RESULT_BYTES` | `200000` | Truncate tool output beyond this |
 | `--audit-log` | `FORTIGATE_MCP_AUDIT_LOG` | stderr | Path for the JSON-lines audit log |
+| `--audit-bodies` | `FORTIGATE_MCP_AUDIT_BODIES` | `false` | Include request bodies, secrets redacted, in audit records |
 | `--log-level` | `FORTIGATE_MCP_LOG_LEVEL` | `info` | slog level |
 | `--log-format` | `FORTIGATE_MCP_LOG_FORMAT` | `text` | `text` or `json` |
 | `--config` | `FORTIGATE_MCP_CONFIG` | — | YAML config file (§3.3) |
@@ -256,6 +257,17 @@ API gateway, service mesh, private network). See §9.
   Numerically keyed tables (policies, static routes) take `id`; others `name`.
 - Tool errors (device unreachable, FortiOS errors, invalid arguments) are
   returned as MCP tool results with `isError: true` and a readable message.
+
+- Mutating tools are annotated by kind: create (not destructive, not
+  idempotent), update and delete (destructive, idempotent), action
+  (destructive, not idempotent). Under `--read-only` none are registered.
+- Create and update tools for most tables take `name` (or `id`) plus a
+  free-form `fields` object with FortiOS field names; descriptions list the
+  main fields and point to `fgt_cmdb_schema`. Policies have typed fields
+  (with `extra` for anything else) and optional `before`/`after` placement.
+- Every request other than GET is audited by an observer in the FortiOS
+  client, so the generic tools are audited too. A device configured
+  `read_only` refuses writes in the client before any request is sent.
 
 ### 7.1.1 Hostname confirmation for disruptive operations
 
@@ -372,7 +384,7 @@ supported on this device" error where SSL-VPN tunnel mode has been removed
 | Tool | Endpoint / behaviour |
 |---|---|
 | `fgt_config_backup` | `monitor/system/config/backup?scope=global|vdom`. Param `destination`: `inline` (default) returns the config text, optionally narrowed to `sections` (e.g. `firewall policy`) and subject to `--max-result-bytes`, with a sha256 of the full config. `disk` is available only when `--backup-dir` is set: it saves the full file and returns path, size and sha256. |
-| `fgt_config_restore` ✎ ⚠ | `monitor/system/config/restore` (device reboots) |
+| `fgt_config_restore` ✎ ⚠ | `monitor/system/config/restore` (device reboots). Restores only files from `--backup-dir`, by bare file name; access is confined to that directory with `os.Root`. |
 | `fgt_config_revisions` | `monitor/system/config-revision` |
 | `fgt_firmware_info` | `monitor/system/firmware` (current + available upgrades) |
 | `fgt_firmware_upgrade` ✎ ⚠ | `monitor/system/firmware/upgrade` (FortiGuard source) |

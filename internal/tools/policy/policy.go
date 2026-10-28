@@ -10,16 +10,20 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/galvill/go-fortigate-mcp-server/internal/fortios"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 )
 
+const path = "firewall/policy"
+
 // Register adds the policy toolset.
 func Register(r *tools.Registry) {
+	registerWrites(r)
 	tools.RegisterTableReads(r, tools.Table{
 		Toolset:    tools.Policy,
 		Prefix:     "fgt_policy",
 		Noun:       "firewall policy",
-		Path:       "firewall/policy",
+		Path:       path,
 		NumericKey: true,
 		About:      "Entries are in evaluation order: the first match wins. Use fields (e.g. policyid, name, srcintf, dstintf, srcaddr, dstaddr, service, action, status) to keep results small.",
 	})
@@ -116,4 +120,203 @@ func (in LookupInput) query() (url.Values, error) {
 type HitCountInput struct {
 	tools.Target
 	PolicyID int `json:"policyid,omitempty" jsonschema:"Only this policy. Omit for all."`
+}
+
+// Fields are the common firewall policy settings. Unset fields are not sent.
+type Fields struct {
+	Name             string         `json:"name,omitempty" jsonschema:"Policy name."`
+	SrcIntf          []string       `json:"srcintf,omitempty" jsonschema:"Incoming interfaces or zones, e.g. [\"port1\"]. Use any for all."`
+	DstIntf          []string       `json:"dstintf,omitempty" jsonschema:"Outgoing interfaces or zones."`
+	SrcAddr          []string       `json:"srcaddr,omitempty" jsonschema:"IPv4 source address objects or groups. Use all for any."`
+	DstAddr          []string       `json:"dstaddr,omitempty" jsonschema:"IPv4 destination address objects, groups or VIPs."`
+	SrcAddr6         []string       `json:"srcaddr6,omitempty" jsonschema:"IPv6 source address objects or groups."`
+	DstAddr6         []string       `json:"dstaddr6,omitempty" jsonschema:"IPv6 destination address objects or groups."`
+	Service          []string       `json:"service,omitempty" jsonschema:"Service objects or groups, e.g. [\"HTTPS\"], or ALL."`
+	Action           string         `json:"action,omitempty" jsonschema:"accept, deny or ipsec."`
+	Schedule         string         `json:"schedule,omitempty" jsonschema:"Schedule name. Defaults to always on create."`
+	NAT              *bool          `json:"nat,omitempty" jsonschema:"Source NAT to the outgoing interface address, or to IP pools when ippool is set."`
+	IPPool           *bool          `json:"ippool,omitempty" jsonschema:"Use the IP pools in poolname for source NAT."`
+	PoolName         []string       `json:"poolname,omitempty" jsonschema:"IP pools for source NAT."`
+	Users            []string       `json:"users,omitempty" jsonschema:"Local or remote users the policy applies to."`
+	Groups           []string       `json:"groups,omitempty" jsonschema:"User groups the policy applies to."`
+	LogTraffic       string         `json:"logtraffic,omitempty" jsonschema:"all, utm or disable."`
+	Enabled          *bool          `json:"enabled,omitempty" jsonschema:"Whether the policy is active."`
+	Comments         string         `json:"comments,omitempty"`
+	UTMStatus        *bool          `json:"utm_status,omitempty" jsonschema:"Enable security profiles."`
+	AVProfile        string         `json:"av_profile,omitempty"`
+	WebFilterProfile string         `json:"webfilter_profile,omitempty"`
+	IPSSensor        string         `json:"ips_sensor,omitempty"`
+	ApplicationList  string         `json:"application_list,omitempty"`
+	SSLSSHProfile    string         `json:"ssl_ssh_profile,omitempty"`
+	Extra            map[string]any `json:"extra,omitempty" jsonschema:"Any other policy fields, by FortiOS name (see fgt_cmdb_schema path firewall/policy). Typed fields take precedence."`
+}
+
+func names(list []string) []map[string]string {
+	out := make([]map[string]string, len(list))
+	for i, n := range list {
+		out[i] = map[string]string{"name": n}
+	}
+	return out
+}
+
+func enable(b bool) string {
+	if b {
+		return "enable"
+	}
+	return "disable"
+}
+
+// body converts the fields to a FortiOS request body.
+func (f Fields) body() map[string]any {
+	b := map[string]any{}
+	for k, v := range f.Extra {
+		b[k] = v
+	}
+	for k, v := range map[string][]string{
+		"srcintf": f.SrcIntf, "dstintf": f.DstIntf, "srcaddr": f.SrcAddr, "dstaddr": f.DstAddr,
+		"srcaddr6": f.SrcAddr6, "dstaddr6": f.DstAddr6, "service": f.Service, "poolname": f.PoolName,
+		"users": f.Users, "groups": f.Groups,
+	} {
+		if v != nil {
+			b[k] = names(v)
+		}
+	}
+	for k, v := range map[string]string{
+		"name": f.Name, "action": f.Action, "schedule": f.Schedule, "logtraffic": f.LogTraffic, "comments": f.Comments,
+		"av-profile": f.AVProfile, "webfilter-profile": f.WebFilterProfile, "ips-sensor": f.IPSSensor,
+		"application-list": f.ApplicationList, "ssl-ssh-profile": f.SSLSSHProfile,
+	} {
+		if v != "" {
+			b[k] = v
+		}
+	}
+	for k, v := range map[string]*bool{"nat": f.NAT, "ippool": f.IPPool, "status": f.Enabled, "utm-status": f.UTMStatus} {
+		if v != nil {
+			b[k] = enable(*v)
+		}
+	}
+	return b
+}
+
+// Position places a policy relative to another one.
+type Position struct {
+	Before *int `json:"before,omitempty" jsonschema:"Place the policy directly before the policy with this ID."`
+	After  *int `json:"after,omitempty" jsonschema:"Place the policy directly after the policy with this ID."`
+}
+
+func (p Position) resolve() (fortios.MovePosition, string, bool, error) {
+	switch {
+	case p.Before != nil && p.After != nil:
+		return "", "", false, fmt.Errorf("give before or after, not both")
+	case p.Before != nil:
+		return fortios.Before, strconv.Itoa(*p.Before), true, nil
+	case p.After != nil:
+		return fortios.After, strconv.Itoa(*p.After), true, nil
+	}
+	return "", "", false, nil
+}
+
+// CreateInput is the input of fgt_policy_create.
+type CreateInput struct {
+	tools.Target
+	Fields
+	Position
+}
+
+// UpdateInput is the input of fgt_policy_update.
+type UpdateInput struct {
+	tools.Target
+	ID int `json:"id" jsonschema:"ID of the policy to change."`
+	Fields
+}
+
+// MoveInput is the input of fgt_policy_move.
+type MoveInput struct {
+	tools.Target
+	ID int `json:"id" jsonschema:"ID of the policy to move."`
+	Position
+}
+
+func registerWrites(r *tools.Registry) {
+	tools.AddWrite(r, tools.Policy, tools.Create, &mcp.Tool{
+		Name: "fgt_policy_create",
+		Description: "Create a firewall policy. New policies go to the end of the list, where earlier policies may shadow them; " +
+			"use before or after to place it. Requires srcintf, dstintf, srcaddr or srcaddr6, dstaddr or dstaddr6, service and action.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in CreateInput) (*mcp.CallToolResult, tools.WriteOutput, error) {
+		f := in.Fields
+		if len(f.SrcIntf) == 0 || len(f.DstIntf) == 0 || len(f.SrcAddr)+len(f.SrcAddr6) == 0 ||
+			len(f.DstAddr)+len(f.DstAddr6) == 0 || len(f.Service) == 0 || f.Action == "" {
+			return nil, tools.WriteOutput{}, fmt.Errorf("srcintf, dstintf, srcaddr (or srcaddr6), dstaddr (or dstaddr6), service and action are required")
+		}
+		pos, target, move, err := in.resolve()
+		if err != nil {
+			return nil, tools.WriteOutput{}, err
+		}
+		tgt, err := r.ResolveWrite(in.Target)
+		if err != nil {
+			return nil, tools.WriteOutput{}, err
+		}
+		body := f.body()
+		if _, ok := body["schedule"]; !ok {
+			body["schedule"] = "always"
+		}
+		out, err := r.CreateCMDB(ctx, tgt, path, body)
+		if err != nil || !move {
+			return nil, out, err
+		}
+		moved, err := r.MoveCMDB(ctx, tgt, path, out.Mkey, pos, target)
+		if err != nil {
+			out.Warning = fmt.Sprintf("policy %s was created at the end of the list, but moving it failed: %v", out.Mkey, err)
+			return nil, out, nil
+		}
+		out.Revision = moved.Revision
+		return nil, out, nil
+	})
+
+	tools.AddWrite(r, tools.Policy, tools.Update, &mcp.Tool{
+		Name:        "fgt_policy_update",
+		Description: "Change fields of a firewall policy. Only the fields given change; list fields (srcaddr, service, ...) replace the whole list.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in UpdateInput) (*mcp.CallToolResult, tools.WriteOutput, error) {
+		body := in.body()
+		if len(body) == 0 {
+			return nil, tools.WriteOutput{}, fmt.Errorf("give at least one field to change")
+		}
+		tgt, err := r.ResolveWrite(in.Target)
+		if err != nil {
+			return nil, tools.WriteOutput{}, err
+		}
+		out, err := r.UpdateCMDB(ctx, tgt, path, strconv.Itoa(in.ID), body)
+		return nil, out, err
+	})
+
+	tools.AddWrite(r, tools.Policy, tools.Delete, &mcp.Tool{
+		Name:        "fgt_policy_delete",
+		Description: "Delete a firewall policy.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in tools.GetIDInput) (*mcp.CallToolResult, tools.DeleteOutput, error) {
+		tgt, err := r.ResolveWrite(in.Target)
+		if err != nil {
+			return nil, tools.DeleteOutput{}, err
+		}
+		out, err := r.DeleteCMDB(ctx, tgt, path, strconv.Itoa(in.ID))
+		return nil, out, err
+	})
+
+	tools.AddWrite(r, tools.Policy, tools.Update, &mcp.Tool{
+		Name:        "fgt_policy_move",
+		Description: "Move a firewall policy before or after another one. Policies are evaluated top to bottom; the first match wins.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in MoveInput) (*mcp.CallToolResult, tools.WriteOutput, error) {
+		pos, target, move, err := in.resolve()
+		if err != nil {
+			return nil, tools.WriteOutput{}, err
+		}
+		if !move {
+			return nil, tools.WriteOutput{}, fmt.Errorf("give before or after")
+		}
+		tgt, err := r.ResolveWrite(in.Target)
+		if err != nil {
+			return nil, tools.WriteOutput{}, err
+		}
+		out, err := r.MoveCMDB(ctx, tgt, path, strconv.Itoa(in.ID), pos, target)
+		return nil, out, err
+	})
 }

@@ -297,3 +297,24 @@ func TestSecretNeverPrints(t *testing.T) {
 		t.Error("Reveal lost the value")
 	}
 }
+
+func TestAuditAndBackupSettings(t *testing.T) {
+	dir := t.TempDir()
+	env := map[string]string{
+		"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t",
+		"FORTIGATE_MCP_AUDIT_LOG": "/var/log/fgt-audit.jsonl", "FORTIGATE_MCP_BACKUP_DIR": dir,
+	}
+	cfg := mustLoad(t, []string{"-audit-bodies"}, env)
+	if cfg.Server.AuditLog != "/var/log/fgt-audit.jsonl" || !cfg.Server.AuditBodies || cfg.Server.BackupDir != dir {
+		t.Errorf("server = %+v", cfg.Server)
+	}
+
+	env["FORTIGATE_MCP_BACKUP_DIR"] = "/nonexistent-dir"
+	if _, err := load(t, nil, env); err == nil || !strings.Contains(err.Error(), "backup-dir") {
+		t.Errorf("missing backup dir: err = %v", err)
+	}
+	env["FORTIGATE_MCP_BACKUP_DIR"] = writeFile(t, "file", "x")
+	if _, err := load(t, nil, env); err == nil || !strings.Contains(err.Error(), "not a directory") {
+		t.Errorf("file as backup dir: err = %v", err)
+	}
+}

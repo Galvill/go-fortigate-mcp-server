@@ -119,6 +119,26 @@ func (s *Server) SetLog(path string, results any) {
 	s.canned["log/"+path] = results
 }
 
+// download is a canned non-JSON response body, such as a config backup.
+type download []byte
+
+// SetDownload sets a raw (non-JSON) body returned for a monitor path.
+func (s *Server) SetDownload(path string, body []byte) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.canned["monitor/"+path] = download(body)
+}
+
+// Singleton returns a copy of a single-object CMDB table, or nil.
+func (s *Server) Singleton(vdom, path string) map[string]any {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if obj := s.singletons[vdom+"|"+path]; obj != nil {
+		return clone(obj)
+	}
+	return nil
+}
+
 // SetSingleton sets the object returned for a single-object CMDB table such
 // as system/sdwan.
 func (s *Server) SetSingleton(vdom, path string, obj map[string]any) {
@@ -247,6 +267,11 @@ func (s *Server) cannedCall(w http.ResponseWriter, r *http.Request, vdom, api, p
 		s.fail(w, r, vdom, path, http.StatusNotFound, 0, "")
 		return
 	}
+	if raw, ok := results.(download); ok {
+		w.Header().Set("Content-Type", "application/octet-stream")
+		_, _ = w.Write(raw)
+		return
+	}
 	s.reply(w, http.StatusOK, s.envelope(r.Method, vdom, path, map[string]any{"results": results}))
 }
 
@@ -315,6 +340,20 @@ func (s *Server) cmdb(w http.ResponseWriter, r *http.Request, vdom, rest string,
 		e := s.insert(vdom, path, entry)
 		s.changed(w, r, vdom, path, e[mkeyField(path)])
 
+	case r.Method == http.MethodPut && mkey == "":
+		var patch map[string]any
+		if err := json.Unmarshal(body, &patch); err != nil {
+			s.fail(w, r, vdom, path, http.StatusBadRequest, 0, "invalid JSON")
+			return
+		}
+		if s.singletons[key] == nil {
+			s.singletons[key] = map[string]any{}
+		}
+		for k, v := range patch {
+			s.singletons[key][k] = v
+		}
+		s.changed(w, r, vdom, path, nil)
+
 	case r.Method == http.MethodPut && mkey != "" && q.Get("action") == "move":
 		s.move(w, r, vdom, path, mkey)
 
@@ -330,6 +369,16 @@ func (s *Server) cmdb(w http.ResponseWriter, r *http.Request, vdom, rest string,
 			return
 		}
 		mk := s.tables[key][i][mkeyField(path)]
+		if _, numeric := mkeyFields[path]; !numeric {
+			// Name-keyed entries can be renamed by sending a new name.
+			if name, ok := patch["name"]; ok && str(name) != mkey {
+				if s.find(key, path, str(name)) >= 0 {
+					s.fail(w, r, vdom, path, http.StatusInternalServerError, -5, "")
+					return
+				}
+				mk = name
+			}
+		}
 		for k, v := range patch {
 			s.tables[key][i][k] = v
 		}
