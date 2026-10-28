@@ -48,7 +48,19 @@ type Server struct {
 	ConfigFile string
 	LogLevel   slog.Level
 	LogFormat  string
+	// Toolsets lists enabled toolsets; nil means all.
+	Toolsets []string
+	// ReadOnly omits every mutating tool.
+	ReadOnly bool
+	// MaxResultBytes caps the size of a tool result.
+	MaxResultBytes int
 }
+
+// DefaultMaxResultBytes is the default cap on a tool result's size.
+const DefaultMaxResultBytes = 200_000
+
+// minMaxResultBytes keeps the cap large enough for a single typical entry.
+const minMaxResultBytes = 4_096
 
 // Device is one FortiGate.
 type Device struct {
@@ -90,25 +102,38 @@ type LookupEnv func(string) (string, bool)
 
 type setting struct {
 	flag, env, def, usage string
+	// boolean settings are registered as flags that need no value (-read-only).
+	boolean bool
 }
 
 var settings = []setting{
-	{"config", "FORTIGATE_MCP_CONFIG", "", "path to YAML config file"},
-	{"log-level", "FORTIGATE_MCP_LOG_LEVEL", "info", "log level: debug, info, warn, error"},
-	{"log-format", "FORTIGATE_MCP_LOG_FORMAT", "text", "log format: text or json"},
+	{flag: "config", env: "FORTIGATE_MCP_CONFIG", usage: "path to YAML config file"},
+	{flag: "log-level", env: "FORTIGATE_MCP_LOG_LEVEL", def: "info", usage: "log level: debug, info, warn, error"},
+	{flag: "log-format", env: "FORTIGATE_MCP_LOG_FORMAT", def: "text", usage: "log format: text or json"},
+	{flag: "toolsets", env: "FORTIGATE_MCP_TOOLSETS", def: "all", usage: "comma-separated toolsets to enable, or \"all\""},
+	{flag: "read-only", env: "FORTIGATE_MCP_READ_ONLY", def: "false", usage: "omit all mutating tools", boolean: true},
+	{flag: "max-result-bytes", env: "FORTIGATE_MCP_MAX_RESULT_BYTES", def: strconv.Itoa(DefaultMaxResultBytes), usage: "maximum size of a tool result in bytes"},
 }
 
 // Flags holds the server flags registered on a FlagSet.
 type Flags struct {
 	fs   *flag.FlagSet
-	vals map[string]*string
+	vals map[string]func() string
 }
 
 // BindFlags registers the server flags on fs.
 func BindFlags(fs *flag.FlagSet) *Flags {
-	f := &Flags{fs: fs, vals: make(map[string]*string, len(settings))}
+	f := &Flags{fs: fs, vals: make(map[string]func() string, len(settings))}
 	for _, s := range settings {
-		f.vals[s.flag] = fs.String(s.flag, s.def, fmt.Sprintf("%s (env %s)", s.usage, s.env))
+		usage := fmt.Sprintf("%s (env %s)", s.usage, s.env)
+		if s.boolean {
+			def, _ := strconv.ParseBool(s.def)
+			p := fs.Bool(s.flag, def, usage)
+			f.vals[s.flag] = func() string { return strconv.FormatBool(*p) }
+		} else {
+			p := fs.String(s.flag, s.def, usage)
+			f.vals[s.flag] = func() string { return *p }
+		}
 	}
 	return f
 }
@@ -124,7 +149,7 @@ func (f *Flags) Load(lookupEnv LookupEnv) (*Config, error) {
 				continue
 			}
 			if setByFlag[name] {
-				return *f.vals[name]
+				return f.vals[name]()
 			}
 			if v, ok := getenv(lookupEnv, s.env); ok {
 				return v
@@ -143,6 +168,22 @@ func (f *Flags) Load(lookupEnv LookupEnv) (*Config, error) {
 	}
 	if cfg.Server.LogLevel, err = logging.ParseLevel(value("log-level")); err != nil {
 		return nil, err
+	}
+	if v := strings.TrimSpace(value("toolsets")); v != "all" {
+		for name := range strings.SplitSeq(v, ",") {
+			if name = strings.TrimSpace(name); name != "" {
+				cfg.Server.Toolsets = append(cfg.Server.Toolsets, name)
+			}
+		}
+		if len(cfg.Server.Toolsets) == 0 {
+			return nil, errors.New("toolsets: list at least one toolset, or \"all\"")
+		}
+	}
+	if cfg.Server.ReadOnly, err = strconv.ParseBool(value("read-only")); err != nil {
+		return nil, fmt.Errorf("read-only: invalid boolean %q", value("read-only"))
+	}
+	if cfg.Server.MaxResultBytes, err = strconv.Atoi(value("max-result-bytes")); err != nil || cfg.Server.MaxResultBytes < minMaxResultBytes {
+		return nil, fmt.Errorf("max-result-bytes: want an integer >= %d, got %q", minMaxResultBytes, value("max-result-bytes"))
 	}
 
 	var file *fileConfig

@@ -249,6 +249,14 @@ API gateway, service mesh, private network). See §9.
 - Toolsets can be enabled selectively (`--toolsets`) to keep the tool list small
   for clients that handle many tools poorly.
 
+- Sensitive fields (passwords, PSKs, keys, passphrases) are replaced with
+  `[REDACTED]` anywhere in read output, including nested objects.
+- Tables with IPv4/IPv6 variants (addresses, groups, VIPs, IP pools) take a
+  `family` parameter (`ipv4` default, `ipv6`) instead of separate tools.
+  Numerically keyed tables (policies, static routes) take `id`; others `name`.
+- Tool errors (device unreachable, FortiOS errors, invalid arguments) are
+  returned as MCP tool results with `isError: true` and a readable message.
+
 ### 7.1.1 Hostname confirmation for disruptive operations
 
 Operations that cause an outage (marked ⚠ below) take a `confirm` string
@@ -289,7 +297,7 @@ from the user's request or a prior preview, not to guess it.
 | `fgt_system_resources` | `monitor/system/resource/usage` (CPU, mem, sessions, disk) |
 | `fgt_interface_status` | `monitor/system/interface` (link, speed, counters) |
 | `fgt_route_table` | `monitor/router/ipv4`, `monitor/router/ipv6` |
-| `fgt_arp_table` | `monitor/system/arp` |
+| `fgt_arp_table` | `monitor/network/arp` |
 | `fgt_dhcp_leases` | `monitor/system/dhcp` |
 | `fgt_session_list` | `monitor/firewall/session` (filters: src/dst/port/proto/policy) |
 | `fgt_session_clear` ✎ ⚠ (`all: true`) | `monitor/firewall/session/close`, `.../clear_all` |

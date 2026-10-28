@@ -25,13 +25,15 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 
 **Done when:** a test can create, list, update, move and delete a policy against fakefgt through the client.
 
-## M2 — Read-only tools (3–4 days)
+## M2 — Read-only tools (3–4 days) — built; VM acceptance pending
 
-- [ ] Tool registration framework in `internal/server`: toolset registry, `--toolsets`, `--read-only`, common `device`/`vdom` params, list conventions (`filter`, `fields`, `limit`, `offset` → `{items,total,truncated}`), output truncation (`--max-result-bytes`), annotations
-- [ ] `system` toolset (all read tools in SPEC §7.2)
-- [ ] Read halves of `policy`, `objects`, `network`, `vpn`, `admin` (list/get/status/lookup/hit-counts)
-- [ ] `generic`: `fgt_cmdb_get`, `fgt_cmdb_schema`, `fgt_monitor_get`
-- [ ] Tool tests via the in-memory MCP transport + golden schema snapshots
+- [x] Tool registration framework (`internal/tools`): toolset registry, `--toolsets`, `--read-only`, common `device`/`vdom` params, list conventions (`filter`, `fields`, `limit`, `offset` → `{items,total,truncated}`), output truncation (`--max-result-bytes`), annotations
+- [x] `system` toolset (all read tools in SPEC §7.2)
+- [x] Read halves of `policy`, `objects` (incl. `fgt_object_usage`), `network`, `vpn`, `admin` (list/get/status/lookup/hit-counts)
+- [x] `generic`: `fgt_cmdb_get`, `fgt_cmdb_schema`, `fgt_monitor_get`
+- [x] Tool tests via the in-memory MCP transport + golden schema snapshots (`internal/server/testdata/tools.golden.json`)
+- [x] Secret field redaction on all read output (moved up from M3)
+- [ ] Acceptance run against a FortiGate-VM (needs a VM; see below)
 
 **Done when:** "Would 10.1.1.5 → 8.8.8.8:443 be allowed on hq, and which policy matches?" works end-to-end against a real FortiGate-VM.
 
@@ -40,16 +42,15 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 - [ ] `internal/audit` JSON-lines writer, hooked into a shared "mutating call" wrapper
 - [ ] Policy create/update/delete/move
 - [ ] Object CRUD for all types, plus group `add_members`/`remove_members` (read-modify-write)
-- [ ] `fgt_object_usage`
 - [ ] Network writes (interfaces, static routes, SD-WAN)
 - [ ] VPN writes (phase1/phase2, tunnel up/down, SSL-VPN disconnect/settings, version gating)
 - [ ] Admin writes (admins, backup (inline by default, to disk when `--backup-dir` is set), restore, firmware upgrade, reboot/shutdown)
 - [ ] `fgt_session_clear`, generic `fgt_cmdb_create/update/delete`, `fgt_monitor_post`
-- [ ] Secret field stripping on reads (psksecret, passwords, keys)
 - [ ] Per-device `read_only` enforcement
 - [ ] Hostname confirmation (SPEC §7.1.1): shared wrapper for ⚠ tools, preview builder (status + HA + firmware target), path matcher for `fgt_monitor_post`, audit `confirmed_hostname`; tests for missing/mismatched/matching confirm and generic-tool bypass attempts
 
 - [ ] Record monitor/CMDB fixtures from 7.2/7.4/7.6 VMs into `test/fakefgt` and validate the FortiOS error-code table (`internal/fortios/response.go`)
+- [ ] Verify endpoints and parameters marked `TODO(M3)` or unverified: `fgt_policy_lookup` parameters and protocol encoding, `fgt_object_usage` (`monitor/system/object/usage`), `fgt_session_list` filters, `fgt_arp_table` (`monitor/network/arp`)
 
 **Done when:** integration suite creates an address → group → policy → moves it → deletes all, with audit records, on 7.2, 7.4 and 7.6 VMs.
 

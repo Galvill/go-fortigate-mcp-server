@@ -35,6 +35,7 @@ func TestStartupErrors(t *testing.T) {
 		{"bad log format", []string{"-log-format", "xml"}, device, "invalid log format"},
 		{"unknown flag", []string{"-nope"}, device, "not defined"},
 		{"no devices", nil, nil, "no FortiGate devices"},
+		{"unknown toolset", []string{"-toolsets", "system,nope"}, device, "unknown toolset"},
 		{"bad CA file", nil, map[string]string{"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t", "FORTIGATE_CA_CERT": "/nonexistent.pem"}, "CA certificate"},
 	}
 	for _, tt := range tests {

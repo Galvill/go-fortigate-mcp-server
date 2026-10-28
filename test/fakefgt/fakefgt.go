@@ -61,24 +61,26 @@ type Server struct {
 	*httptest.Server
 	Token string
 
-	mu       sync.Mutex
-	tables   map[string][]map[string]any // key: vdom + "|" + path
-	nextID   map[string]int
-	monitor  map[string]any
-	failures []*failure
-	requests []Request
-	revision int
+	mu         sync.Mutex
+	tables     map[string][]map[string]any // key: vdom + "|" + path
+	singletons map[string]map[string]any   // key: vdom + "|" + path
+	nextID     map[string]int
+	canned     map[string]any // key: "monitor/<path>" or "log/<path>"
+	failures   []*failure
+	requests   []Request
+	revision   int
 }
 
 // New starts a TLS fake FortiGate that is closed when the test ends.
 func New(t testing.TB) *Server {
 	t.Helper()
 	s := &Server{
-		Token:  DefaultToken,
-		tables: map[string][]map[string]any{},
-		nextID: map[string]int{},
-		monitor: map[string]any{
-			"system/status": map[string]any{
+		Token:      DefaultToken,
+		tables:     map[string][]map[string]any{},
+		singletons: map[string]map[string]any{},
+		nextID:     map[string]int{},
+		canned: map[string]any{
+			"monitor/system/status": map[string]any{
 				"model_name":      "FortiGate",
 				"model_number":    "VM64",
 				"model":           "FGVM64",
@@ -107,7 +109,22 @@ func (s *Server) WriteCACert(t testing.TB) string {
 func (s *Server) SetMonitor(path string, results any) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.monitor[path] = results
+	s.canned["monitor/"+path] = results
+}
+
+// SetLog sets the results returned for a log path such as "disk/event/system".
+func (s *Server) SetLog(path string, results any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.canned["log/"+path] = results
+}
+
+// SetSingleton sets the object returned for a single-object CMDB table such
+// as system/sdwan.
+func (s *Server) SetSingleton(vdom, path string, obj map[string]any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.singletons[vdom+"|"+path] = clone(obj)
 }
 
 // Seed appends entries to a CMDB table.
@@ -177,8 +194,8 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	switch api {
 	case "cmdb":
 		s.cmdb(w, r, vdom, path, body)
-	case "monitor":
-		s.monitorCall(w, r, vdom, path)
+	case "monitor", "log":
+		s.cannedCall(w, r, vdom, api, path)
 	default:
 		s.reply(w, http.StatusNotFound, s.envelope(r.Method, vdom, path, map[string]any{"status": "error"}))
 	}
@@ -224,8 +241,8 @@ func (s *Server) fail(w http.ResponseWriter, r *http.Request, vdom, path string,
 	s.reply(w, status, s.envelope(r.Method, vdom, path, fields))
 }
 
-func (s *Server) monitorCall(w http.ResponseWriter, r *http.Request, vdom, path string) {
-	results, ok := s.monitor[path]
+func (s *Server) cannedCall(w http.ResponseWriter, r *http.Request, vdom, api, path string) {
+	results, ok := s.canned[api+"/"+path]
 	if !ok {
 		s.fail(w, r, vdom, path, http.StatusNotFound, 0, "")
 		return
@@ -255,6 +272,11 @@ func (s *Server) cmdb(w http.ResponseWriter, r *http.Request, vdom, rest string,
 	case r.Method == http.MethodGet && q.Get("action") == "schema":
 		s.reply(w, http.StatusOK, s.envelope(r.Method, vdom, path, map[string]any{
 			"results": map[string]any{"name": segs[1], "category": "table", "mkey": mkeyField(path), "children": map[string]any{}},
+		}))
+
+	case r.Method == http.MethodGet && mkey == "" && s.singletons[key] != nil:
+		s.reply(w, http.StatusOK, s.envelope(r.Method, vdom, path, map[string]any{
+			"results": clone(s.singletons[key]), "revision": s.rev(),
 		}))
 
 	case r.Method == http.MethodGet && mkey == "":

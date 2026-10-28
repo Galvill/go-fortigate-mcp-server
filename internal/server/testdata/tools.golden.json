@@ -1,0 +1,3135 @@
+[
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one firewall address object by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_address_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List firewall address objects (CMDB firewall/address). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_address_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one firewall address group by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List firewall address groups (CMDB firewall/addrgrp). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_addrgrp_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one administrator account by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_admin_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List administrator accounts (CMDB system/admin). Supports filter, fields, limit and offset. Passwords are never returned.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_admin_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get the ARP table of a FortiGate.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_arp_table",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List certificates available on the device (local, CA, remote), with subject, issuer and expiry.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_certificate_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read any FortiOS configuration table (CMDB) by path, e.g. system/dns, user/local, firewall/schedule-recurring. Omit mkey to list entries (filter, fields, limit and offset apply); give mkey to read one entry. Single-object tables (e.g. system/global) return their object as the one item. Prefer a dedicated tool when one exists. Use fgt_cmdb_schema to discover a table's fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "mkey": {
+          "description": "Name or ID of one entry. Omit to list.",
+          "type": "string"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "path": {
+          "description": "CMDB table path after /api/v2/cmdb/, e.g. system/dns or firewall.service/category.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_cmdb_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get the schema of a CMDB table: its fields, their types, allowed values and defaults. Use before writing to an unfamiliar table.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "path": {
+          "description": "CMDB table path, e.g. firewall/policy.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_cmdb_schema",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List saved configuration revisions with their IDs, time, admin and comment.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_config_revisions",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List the FortiGates this server manages, with their default VDOM and, when reachable, hostname, model, FortiOS version and serial. Use the name as the device argument of other tools.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "name": "fgt_device_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "default_device": {
+          "description": "Device used when a tool call omits device.",
+          "type": "string"
+        },
+        "devices": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "description": "Why the device could not be reached, if it could not.",
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "hostname": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "read_only": {
+                "type": "boolean"
+              },
+              "serial": {
+                "type": "string"
+              },
+              "vdom": {
+                "description": "Default VDOM.",
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "host",
+              "vdom",
+              "read_only"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "devices"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get DHCP leases handed out by a FortiGate's DHCP servers.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_dhcp_leases",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get the running firmware version and the firmware images available for upgrade from FortiGuard.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_firmware_info",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get high-availability cluster status: members, roles and whether their configurations are in sync.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_ha_status",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "checksums": {
+          "description": "Configuration checksums per member; differing checksums mean the cluster is out of sync."
+        },
+        "device": {
+          "type": "string"
+        },
+        "peers": {
+          "description": "Cluster members with role, serial, hostname and priority. Empty for a standalone unit."
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "peers",
+        "checksums"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one interface configuration by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_interface_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List interface configurations (CMDB system/interface). Supports filter, fields, limit and offset. Interfaces are global; each entry's vdom field says which VDOM it belongs to. For live link state and counters use fgt_interface_status.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_interface_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get live interface state: link, speed, IP, and traffic and error counters. For interface configuration use fgt_interface_get.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "interface": {
+          "description": "Only this interface, e.g. port1. Omit for all.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_interface_status",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one IP pool (source NAT) by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ippool_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List IP pool (source NAT)s (CMDB firewall/ippool). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_ippool_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one IPsec phase 1 (tunnel) configuration by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase1_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List IPsec phase 1 (tunnel) configurations (CMDB vpn.ipsec/phase1-interface). Supports filter, fields, limit and offset. Pre-shared keys are never returned.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase1_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one IPsec phase 2 (selector) configuration by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase2_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List IPsec phase 2 (selector) configurations (CMDB vpn.ipsec/phase2-interface). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_ipsec_phase2_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get IPsec tunnel status: each tunnel's remote gateway, uptime, traffic counters, and its phase 2 selectors with up/down state.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_ipsec_status",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get license, support contract and FortiGuard subscription status of a FortiGate.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_license_status",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Search FortiGate logs (traffic, event, UTM) with filters. Results are newest first.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "filter": {
+          "description": "FortiOS log filters, e.g. srcip==10.0.0.5, action==deny, dstport==443.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "rows": {
+          "description": "Entries to return, 1 to 1000 (default 100). Newest first.",
+          "type": "integer"
+        },
+        "source": {
+          "description": "Log storage: disk (default), memory, fortianalyzer or forticloud.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Entries to skip, for paging.",
+          "type": "integer"
+        },
+        "subtype": {
+          "description": "Log subtype. Traffic: forward, local, multicast, sniffer. Event: system, vpn, user, router, ha, ... Required for traffic and event.",
+          "type": "string"
+        },
+        "type": {
+          "description": "Log type: traffic, event, virus, webfilter, ips, app-ctrl, anomaly, dns, ssl, ...",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_log_search",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Call any FortiOS monitor (status) endpoint by path, e.g. system/ha-statistics, router/bgp/neighbors, user/firewall, wifi/client, switch-controller/managed-switch/status. Prefer a dedicated tool when one exists.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Query parameters for the endpoint.",
+          "type": "object"
+        },
+        "path": {
+          "description": "Monitor endpoint path after /api/v2/monitor/, e.g. router/bgp/neighbors.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_monitor_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Find where a CMDB object is referenced (policies, groups, routes, ...). Check this before deleting or renaming an object.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name (or ID) of the object.",
+          "type": "string"
+        },
+        "path": {
+          "description": "CMDB table of the object, e.g. firewall/address, firewall/addrgrp, firewall.service/custom.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_object_usage",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one firewall policy by ID, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Numeric ID of the entry.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_policy_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get usage statistics per firewall policy: hit count, bytes, active sessions and when last used. Useful to find unused policies.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "policyid": {
+          "description": "Only this policy. Omit for all.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_policy_hit_counts",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List firewall policys (CMDB firewall/policy). Supports filter, fields, limit and offset. Entries are in evaluation order: the first match wins. Use fields (e.g. policyid, name, srcintf, dstintf, srcaddr, dstaddr, service, action, status) to keep results small.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_policy_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Find which firewall policy would match a given flow (source interface, source IP, destination, protocol and port). Use this to answer \"would this traffic be allowed?\".",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "dest": {
+          "description": "Destination IP address or FQDN.",
+          "type": "string"
+        },
+        "destport": {
+          "description": "Destination port (TCP/UDP).",
+          "type": "integer"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "icmpcode": {
+          "description": "ICMP code (ICMP only).",
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "icmptype": {
+          "description": "ICMP type (ICMP only).",
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "ipv6": {
+          "description": "True if the addresses are IPv6.",
+          "type": "boolean"
+        },
+        "protocol": {
+          "description": "tcp, udp, icmp, or an IP protocol number.",
+          "type": "string"
+        },
+        "sourceip": {
+          "description": "Source IP address.",
+          "type": "string"
+        },
+        "sourceport": {
+          "description": "Source port (TCP/UDP).",
+          "type": "integer"
+        },
+        "srcintf": {
+          "description": "Interface the traffic arrives on, e.g. port1.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "srcintf",
+        "sourceip",
+        "dest",
+        "protocol"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_policy_lookup",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get the active routing table (static, connected and dynamic routes) of a FortiGate.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_route_table",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get the SD-WAN configuration: members, zones, health checks and rules.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_sdwan_config_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get SD-WAN health: health-check results (latency, jitter, packet loss, SLA state) per member, and member link status.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_sdwan_status",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "health_checks": true,
+        "members": true,
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "health_checks",
+        "members"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one custom firewall service by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_service_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List custom firewall services (CMDB firewall.service/custom). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_service_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one firewall service group by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List firewall service groups (CMDB firewall.service/group). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_servicegrp_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List active firewall sessions, optionally filtered by addresses, ports, protocol, policy or interfaces. Use filters: busy firewalls have very many sessions.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "description": "Sessions to return, 20 to 1000 (default 50).",
+          "type": "integer"
+        },
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "dstaddr": {
+          "description": "Destination IP address.",
+          "type": "string"
+        },
+        "dstintf": {
+          "description": "Outgoing interface.",
+          "type": "string"
+        },
+        "dstport": {
+          "type": "integer"
+        },
+        "ipv6": {
+          "description": "List IPv6 sessions instead of IPv4.",
+          "type": "boolean"
+        },
+        "policyid": {
+          "description": "Only sessions matched by this policy.",
+          "type": "integer"
+        },
+        "protocol": {
+          "description": "IP protocol number: 6 TCP, 17 UDP, 1 ICMP.",
+          "type": "integer"
+        },
+        "srcaddr": {
+          "description": "Source IP address.",
+          "type": "string"
+        },
+        "srcintf": {
+          "description": "Incoming interface.",
+          "type": "string"
+        },
+        "srcport": {
+          "type": "integer"
+        },
+        "start": {
+          "description": "Sessions to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_session_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List connected SSL-VPN users with their source IP, assigned tunnel IP and login time.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_sslvpn_sessions",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get SSL-VPN settings: listening interfaces and port, tunnel IP pools, authentication rules.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_sslvpn_settings_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one IPv4 static route by ID, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Numeric ID of the entry.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_static_route_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List IPv4 static routes (CMDB router/static). Supports filter, fields, limit and offset. Entries are keyed by seq-num. For the active routing table use fgt_route_table.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_static_route_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get current CPU, memory, disk and session usage of a FortiGate.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_system_resources",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "results": true,
+        "truncated": {
+          "description": "True if the results were cut to fit the size limit.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "results"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get a FortiGate's hostname, model, serial number, FortiOS version and build.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_system_status",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "build": {
+          "type": "integer"
+        },
+        "device": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "log_disk_status": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_number": {
+          "type": "string"
+        },
+        "serial": {
+          "type": "string"
+        },
+        "vdom": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "hostname",
+        "model",
+        "model_name",
+        "model_number",
+        "version",
+        "build",
+        "serial"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get one virtual IP (destination NAT) by name, with all its fields.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the entry.",
+          "type": "string"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "fgt_vip_get",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "item": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "item"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List virtual IP (destination NAT)s (CMDB firewall/vip). Supports filter, fields, limit and offset.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "description": "FortiGate to use, as named by fgt_device_list. Optional when a default device is configured.",
+          "type": "string"
+        },
+        "family": {
+          "description": "Address family: ipv4 (default) or ipv6.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Return only these fields of each entry. Use to keep results small.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "filter": {
+          "description": "FortiOS filters. Separate filters are ANDed; commas inside one filter are ORed. Operators: == != =@ (contains) !@ (does not contain) \u003c \u003c= \u003e \u003e=. Examples: name=@web, action==deny",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "limit": {
+          "description": "Maximum entries to return (default 100, max 1000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Number of matching entries to skip, for paging.",
+          "type": "integer"
+        },
+        "vdom": {
+          "description": "VDOM to use. Defaults to the device's configured VDOM.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fgt_vip_list",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "next_offset": {
+          "description": "Offset to request the next page, when truncated.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Number of matching entries on the device, or -1 if the device did not report it.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True if more matching entries exist than were returned.",
+          "type": "boolean"
+        },
+        "vdom": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "vdom",
+        "items",
+        "total",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Ping"
+    },
+    "description": "Check that the FortiGate MCP server is running. Does not contact any FortiGate.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "name": "ping",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "description": "always \"pong\"",
+          "type": "string"
+        },
+        "version": {
+          "description": "version of the MCP server",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "version"
+      ],
+      "type": "object"
+    }
+  }
+]

@@ -1,73 +1,131 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+
+	"github.com/galvill/go-fortigate-mcp-server/internal/config"
+	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
+	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
+	"github.com/galvill/go-fortigate-mcp-server/internal/tools/toolstest"
+	"github.com/galvill/go-fortigate-mcp-server/test/fakefgt"
 )
 
-func connect(t *testing.T) *mcp.ClientSession {
+var update = flag.Bool("update", false, "rewrite golden files")
+
+func connect(t *testing.T, opts tools.Options) *mcp.ClientSession {
 	t.Helper()
-	ctx := context.Background()
-
-	serverTransport, clientTransport := mcp.NewInMemoryTransports()
-	ss, err := New(Options{Version: "test"}).Connect(ctx, serverTransport, nil)
+	inv, err := devices.New(&config.Config{Devices: []config.Device{toolstest.Device(t, "fw", fakefgt.New(t))}}, nil)
 	if err != nil {
-		t.Fatalf("server connect: %v", err)
+		t.Fatal(err)
 	}
-	t.Cleanup(func() { _ = ss.Close() })
-
-	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "test"}, nil)
-	cs, err := client.Connect(ctx, clientTransport, nil)
+	if opts.MaxResultBytes == 0 {
+		opts.MaxResultBytes = config.DefaultMaxResultBytes
+	}
+	s, err := New(Options{Version: "test", Inventory: inv, Tools: opts})
 	if err != nil {
-		t.Fatalf("client connect: %v", err)
+		t.Fatal(err)
 	}
-	t.Cleanup(func() { _ = cs.Close() })
-	return cs
+	return toolstest.ConnectServer(t, s)
+}
+
+func listTools(t *testing.T, cs *mcp.ClientSession) []*mcp.Tool {
+	t.Helper()
+	res, err := cs.ListTools(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return res.Tools
 }
 
 func TestServerInfo(t *testing.T) {
-	cs := connect(t)
-	info := cs.InitializeResult().ServerInfo
-	if info.Name != Name || info.Version != "test" {
-		t.Errorf("server info = %+v, want name %q version %q", info, Name, "test")
+	cs := connect(t, tools.Options{})
+	res := cs.InitializeResult()
+	if res.ServerInfo.Name != Name || res.ServerInfo.Version != "test" || res.Instructions == "" {
+		t.Errorf("initialize result = %+v", res)
 	}
 }
 
 func TestPing(t *testing.T) {
-	cs := connect(t)
-	ctx := context.Background()
-
-	tools, err := cs.ListTools(ctx, nil)
-	if err != nil {
-		t.Fatalf("list tools: %v", err)
+	cs := connect(t, tools.Options{})
+	res, err := cs.CallTool(context.Background(), &mcp.CallToolParams{Name: "ping"})
+	if err != nil || res.IsError {
+		t.Fatalf("ping: %v %v", res, err)
 	}
-	if len(tools.Tools) != 1 || tools.Tools[0].Name != "ping" {
-		t.Fatalf("tools = %v, want only ping", tools.Tools)
-	}
-	if !tools.Tools[0].Annotations.ReadOnlyHint {
-		t.Error("ping should be annotated read-only")
-	}
-
-	res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: "ping"})
-	if err != nil {
-		t.Fatalf("call ping: %v", err)
-	}
-	if res.IsError {
-		t.Fatalf("ping returned tool error: %v", res.Content)
-	}
-
-	raw, err := json.Marshal(res.StructuredContent)
-	if err != nil {
-		t.Fatalf("marshal structured content: %v", err)
-	}
+	raw, _ := json.Marshal(res.StructuredContent)
 	var out PingOutput
 	if err := json.Unmarshal(raw, &out); err != nil {
-		t.Fatalf("unmarshal structured content: %v", err)
+		t.Fatal(err)
 	}
 	if want := (PingOutput{Message: "pong", Version: "test"}); out != want {
 		t.Errorf("ping output = %+v, want %+v", out, want)
+	}
+}
+
+func TestToolConventions(t *testing.T) {
+	for _, tool := range listTools(t, connect(t, tools.Options{})) {
+		if tool.Description == "" {
+			t.Errorf("%s: no description", tool.Name)
+		}
+		if tool.Annotations == nil || !tool.Annotations.ReadOnlyHint {
+			t.Errorf("%s: M2 tools must be annotated read-only", tool.Name)
+		}
+		if tool.OutputSchema == nil {
+			t.Errorf("%s: no output schema", tool.Name)
+		}
+		if len(tool.Name) > 64 {
+			t.Errorf("%s: name longer than 64 characters", tool.Name)
+		}
+	}
+}
+
+func TestToolsetSelection(t *testing.T) {
+	all := listTools(t, connect(t, tools.Options{}))
+	some := listTools(t, connect(t, tools.Options{Toolsets: []string{tools.VPN}}))
+	if len(some) >= len(all) {
+		t.Errorf("vpn only: %d tools, all: %d", len(some), len(all))
+	}
+	for _, tool := range some {
+		if tool.Name != "ping" && !strings.HasPrefix(tool.Name, "fgt_ipsec_") && !strings.HasPrefix(tool.Name, "fgt_sslvpn_") {
+			t.Errorf("unexpected tool with vpn toolset: %s", tool.Name)
+		}
+	}
+	if _, err := New(Options{Tools: tools.Options{Toolsets: []string{"nope"}}}); err == nil {
+		t.Error("unknown toolset: expected error")
+	}
+}
+
+// TestToolSchemasGolden snapshots every tool's name, description, schemas and
+// annotations. Tool names and schemas are the server's API: review diffs.
+// Regenerate with: go test ./internal/server -run Golden -update
+func TestToolSchemasGolden(t *testing.T) {
+	got, err := json.MarshalIndent(listTools(t, connect(t, tools.Options{})), "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got = append(got, '\n')
+	path := filepath.Join("testdata", "tools.golden.json")
+	if *update {
+		if err := os.MkdirAll("testdata", 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, got, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	want, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("%v (run with -update to create)", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Errorf("tool schemas changed; review and run: go test ./internal/server -run Golden -update")
 	}
 }

@@ -44,3 +44,16 @@ func TestNewErrors(t *testing.T) {
 		t.Error("expected error for unknown level")
 	}
 }
+
+func TestIsSensitiveKey(t *testing.T) {
+	for _, k := range []string{"psksecret", "password", "passwd", "private-key", "md5-key", "pre-shared-key", "key", "api_key", "X-FortiGate-Token", "passphrase", "sae-password"} {
+		if !IsSensitiveKey(k) {
+			t.Errorf("%q should be sensitive", k)
+		}
+	}
+	for _, k := range []string{"name", "mkey", "keylife", "srcaddr", "q_origin_key", "policyid", "comments"} {
+		if IsSensitiveKey(k) {
+			t.Errorf("%q should not be sensitive", k)
+		}
+	}
+}

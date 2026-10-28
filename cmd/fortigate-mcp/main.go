@@ -17,6 +17,7 @@ import (
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
 	"github.com/galvill/go-fortigate-mcp-server/internal/logging"
 	"github.com/galvill/go-fortigate-mcp-server/internal/server"
+	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 )
 
 // version is set at build time via -ldflags "-X main.version=...".
@@ -65,9 +66,21 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	s := server.New(server.Options{Version: version, Logger: logger})
+	s, err := server.New(server.Options{
+		Version:   version,
+		Logger:    logger,
+		Inventory: inv,
+		Tools: tools.Options{
+			Toolsets:       cfg.Server.Toolsets,
+			ReadOnly:       cfg.Server.ReadOnly,
+			MaxResultBytes: cfg.Server.MaxResultBytes,
+		},
+	})
+	if err != nil {
+		return err
+	}
 	logger.Info("starting", "version", version, "transport", "stdio",
-		"devices", inv.Names(), "default_device", inv.Default())
+		"devices", inv.Names(), "default_device", inv.Default(), "read_only", cfg.Server.ReadOnly)
 	if err := s.Run(ctx, &mcp.StdioTransport{}); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}

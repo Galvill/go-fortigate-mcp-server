@@ -23,12 +23,21 @@ var sensitiveKeys = []string{
 	"private_key",
 	"privatekey",
 	"authorization",
+	"passphrase",
+	"-key", // FortiOS: md5-key, auth-key, pre-shared-key, ...
+	"_key",
 }
 
 // IsSensitiveKey reports whether a key (attribute, header or FortiOS field
 // name) should never have its value logged or returned.
 func IsSensitiveKey(key string) bool {
 	k := strings.ToLower(key)
+	switch k {
+	case "key":
+		return true
+	case "q_origin_key": // FortiOS metadata naming the entry, on every CMDB object
+		return false
+	}
 	for _, s := range sensitiveKeys {
 		if strings.Contains(k, s) {
 			return true

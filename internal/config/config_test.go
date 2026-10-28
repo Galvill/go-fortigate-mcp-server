@@ -227,6 +227,42 @@ func TestServerSettingPrecedence(t *testing.T) {
 	}
 }
 
+func TestToolsetAndLimitSettings(t *testing.T) {
+	env := map[string]string{"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t"}
+	cfg := mustLoad(t, nil, env)
+	if cfg.Server.Toolsets != nil || cfg.Server.ReadOnly || cfg.Server.MaxResultBytes != DefaultMaxResultBytes {
+		t.Errorf("defaults: %+v", cfg.Server)
+	}
+
+	env["FORTIGATE_MCP_TOOLSETS"] = "system, policy"
+	env["FORTIGATE_MCP_READ_ONLY"] = "true"
+	cfg = mustLoad(t, []string{"-max-result-bytes", "50000"}, env)
+	if strings.Join(cfg.Server.Toolsets, ",") != "system,policy" || !cfg.Server.ReadOnly || cfg.Server.MaxResultBytes != 50000 {
+		t.Errorf("env/flags: %+v", cfg.Server)
+	}
+
+	// A bare boolean flag works and overrides env.
+	env["FORTIGATE_MCP_READ_ONLY"] = "false"
+	if cfg = mustLoad(t, []string{"-read-only"}, env); !cfg.Server.ReadOnly {
+		t.Error("-read-only flag ignored")
+	}
+
+	for _, bad := range []map[string]string{
+		{"FORTIGATE_MCP_TOOLSETS": " , "},
+		{"FORTIGATE_MCP_READ_ONLY": "maybe"},
+		{"FORTIGATE_MCP_MAX_RESULT_BYTES": "10"},
+		{"FORTIGATE_MCP_MAX_RESULT_BYTES": "lots"},
+	} {
+		e := map[string]string{"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t"}
+		for k, v := range bad {
+			e[k] = v
+		}
+		if _, err := load(t, nil, e); err == nil {
+			t.Errorf("%v: expected error", bad)
+		}
+	}
+}
+
 func TestNormalizeHost(t *testing.T) {
 	tests := map[string]string{
 		"10.0.0.1":                  "https://10.0.0.1",

@@ -1,0 +1,53 @@
+package generic_test
+
+import (
+	"testing"
+
+	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
+	"github.com/galvill/go-fortigate-mcp-server/internal/tools/generic"
+	"github.com/galvill/go-fortigate-mcp-server/internal/tools/toolstest"
+)
+
+func TestCMDBGet(t *testing.T) {
+	env := toolstest.Connect(t, generic.Register, tools.Options{})
+	env.FW.Seed("root", "user/local", map[string]any{"name": "alice", "passwd": "ENC x"}, map[string]any{"name": "bob"})
+	env.FW.SetSingleton("root", "system/global", map[string]any{"hostname": "fw1"})
+
+	list := toolstest.Call[toolstest.List](t, env, "fgt_cmdb_get", map[string]any{"path": "user/local", "limit": 1})
+	if len(list.Items) != 1 || list.Items[0]["passwd"] != "[REDACTED]" || !list.Truncated {
+		t.Errorf("list = %+v", list)
+	}
+	one := toolstest.Call[toolstest.List](t, env, "fgt_cmdb_get", map[string]any{"path": "user/local", "mkey": "bob"})
+	if len(one.Items) != 1 || one.Items[0]["name"] != "bob" {
+		t.Errorf("one = %+v", one)
+	}
+	single := toolstest.Call[toolstest.List](t, env, "fgt_cmdb_get", map[string]any{"path": "system/global"})
+	if len(single.Items) != 1 || single.Items[0]["hostname"] != "fw1" {
+		t.Errorf("singleton = %+v", single)
+	}
+
+	toolstest.ExpectError(t, env, "fgt_cmdb_get", map[string]any{"path": "../../monitor/system/status"}, "invalid API path")
+	if n := len(env.FW.Requests()); n != 4 {
+		t.Errorf("requests = %d, want 4 (invalid path must not reach the device)", n)
+	}
+}
+
+func TestSchemaAndMonitor(t *testing.T) {
+	env := toolstest.Connect(t, generic.Register, tools.Options{})
+	out := toolstest.Call[toolstest.Results](t, env, "fgt_cmdb_schema", map[string]any{"path": "firewall/policy"})
+	if out.Results.(map[string]any)["mkey"] != "policyid" {
+		t.Errorf("schema = %v", out.Results)
+	}
+	if q := env.FW.Requests()[0].Query; q.Get("action") != "schema" {
+		t.Errorf("schema query = %v", q)
+	}
+
+	env.FW.SetMonitor("router/bgp/neighbors", []any{map[string]any{"neighbor_ip": "10.0.0.2", "state": "Established"}})
+	toolstest.Call[toolstest.Results](t, env, "fgt_monitor_get", map[string]any{"path": "router/bgp/neighbors", "params": map[string]string{"ip_version": "ipv4"}})
+	if q := env.FW.Requests()[1].Query; q.Get("ip_version") != "ipv4" || q.Get("vdom") != "root" {
+		t.Errorf("monitor query = %v", q)
+	}
+
+	toolstest.ExpectError(t, env, "fgt_monitor_get", map[string]any{"path": "system/status", "params": map[string]string{"vdom": "x"}}, "vdom argument")
+	toolstest.ExpectError(t, env, "fgt_monitor_get", map[string]any{"path": "nope/missing"}, "HTTP 404")
+}
