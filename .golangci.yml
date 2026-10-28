@@ -8,6 +8,7 @@ linters:
     - gosec
     - misspell
     - noctx
+    - nolintlint
     - unconvert
   exclusions:
     rules:

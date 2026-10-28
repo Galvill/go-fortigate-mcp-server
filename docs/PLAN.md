@@ -14,14 +14,14 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 
 **Done when:** `claude mcp add fortigate -- ./fortigate-mcp` lists the ping tool.
 
-## M1 — Config & FortiOS client (2–3 days)
+## M1 — Config & FortiOS client (2–3 days) — done
 
-- [ ] `internal/config`: structs, YAML load, env (single + `FORTIGATE_DEVICES` multi), flags, precedence, validation, token_env/token_file, literal-token rejection
-- [ ] `internal/fortios`: client per device (TLS/CA/insecure, timeout, bearer auth), envelope decode, `APIError` + FortiOS error-code hints, mkey escaping, path validation, paging helper, GET retries, per-device semaphore, version detection
-- [ ] `internal/devices`: inventory resolver (`device`/`vdom` defaulting)
-- [ ] Redacting slog handler
-- [ ] `test/fakefgt`: in-memory CMDB + canned monitor endpoints; fixtures recorded from a 7.4 VM
-- [ ] Unit tests for all of the above
+- [x] `internal/config`: structs, YAML load, env (single + `FORTIGATE_DEVICES` multi), flags, precedence, validation, token_env/token_file, literal-token rejection
+- [x] `internal/fortios`: client per device (TLS/CA/insecure, timeout, bearer auth), envelope decode, `APIError` + FortiOS error-code hints, mkey escaping, path validation, paging helper, GET retries, per-device semaphore, version detection
+- [x] `internal/devices`: inventory resolver (`device`/`vdom` defaulting)
+- [x] Redacting slog handler (`internal/logging`)
+- [x] `test/fakefgt`: in-memory CMDB (filter/format/paging/move, -3/-5 errors) + canned monitor endpoints + failure injection. Envelopes are hand-written to the 7.4 format; recording real fixtures moves to M3 with the VM integration suite.
+- [x] Unit tests for all of the above
 
 **Done when:** a test can create, list, update, move and delete a policy against fakefgt through the client.
 
@@ -48,6 +48,8 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 - [ ] Secret field stripping on reads (psksecret, passwords, keys)
 - [ ] Per-device `read_only` enforcement
 - [ ] Hostname confirmation (SPEC §7.1.1): shared wrapper for ⚠ tools, preview builder (status + HA + firmware target), path matcher for `fgt_monitor_post`, audit `confirmed_hostname`; tests for missing/mismatched/matching confirm and generic-tool bypass attempts
+
+- [ ] Record monitor/CMDB fixtures from 7.2/7.4/7.6 VMs into `test/fakefgt` and validate the FortiOS error-code table (`internal/fortios/response.go`)
 
 **Done when:** integration suite creates an address → group → policy → moves it → deletes all, with audit records, on 7.2, 7.4 and 7.6 VMs.
 

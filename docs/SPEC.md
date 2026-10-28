@@ -110,6 +110,12 @@ FORTIGATE_BRANCH_1_VDOM=customer-a
 Device names are upper-cased with `-` → `_` to form the variable prefix. Every
 single-device variable above has a per-device form.
 
+Device names must be lowercase letters, digits, `-` and `_`. `mcp` is
+reserved, because `FORTIGATE_MCP_*` holds server settings. Two names that map
+to the same prefix (e.g. `a-b` and `a_b`) are rejected. Empty variables are
+treated as unset. Hosts must be `https`; a bare `host[:port]` gets `https://`
+prepended.
+
 ### 3.3 Config file (`--config` / `FORTIGATE_MCP_CONFIG`)
 
 ```yaml
@@ -129,7 +135,10 @@ devices:
 ```
 
 Literal tokens in the file are rejected; use `token_env` or `token_file`.
-Devices from file and env are merged. On a name collision, env wins.
+Unknown keys are rejected. Devices from file and env are merged: for every
+device, `FORTIGATE_<NAME>_*` variables override the file's fields one by one
+(so the file can hold hosts while env supplies tokens). A token from env
+replaces a file `token_file`, and vice versa.
 
 ### 3.4 Server settings
 
@@ -146,6 +155,8 @@ Devices from file and env are merged. On a name collision, env wins.
 | `--max-result-bytes` | `FORTIGATE_MCP_MAX_RESULT_BYTES` | `200000` | Truncate tool output beyond this |
 | `--audit-log` | `FORTIGATE_MCP_AUDIT_LOG` | stderr | Path for the JSON-lines audit log |
 | `--log-level` | `FORTIGATE_MCP_LOG_LEVEL` | `info` | slog level |
+| `--log-format` | `FORTIGATE_MCP_LOG_FORMAT` | `text` | `text` or `json` |
+| `--config` | `FORTIGATE_MCP_CONFIG` | — | YAML config file (§3.3) |
 
 Startup validation fails fast on: no devices, an unreadable token file, an
 unwritable `--backup-dir` (when set), or an invalid URL. Binding HTTP to a
