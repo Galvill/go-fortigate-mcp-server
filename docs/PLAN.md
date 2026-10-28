@@ -2,14 +2,15 @@
 
 Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 
-## M0 — Skeleton (½ day)
+## M0 — Skeleton (½ day) — done
 
-- [ ] `go mod init github.com/galvill/go-fortigate-mcp-server`
-- [ ] Layout per SPEC §2; `cmd/fortigate-mcp/main.go` with flag parsing and slog setup (stderr)
-- [ ] Minimal MCP server over stdio with one `ping`-style tool, using `modelcontextprotocol/go-sdk`
-- [ ] Makefile / `task` targets: `build`, `test`, `lint`, `fmt`
-- [ ] CI (GitHub Actions): vet, golangci-lint, staticcheck, govulncheck, `go test -race`
-- [ ] `.golangci.yml`, `.gitignore`, LICENSE, README stub
+- [x] `go mod init github.com/galvill/go-fortigate-mcp-server`
+- [x] Layout per SPEC §2; `cmd/fortigate-mcp/main.go` with flag parsing and slog setup (stderr)
+- [x] Minimal MCP server over stdio with one `ping`-style tool, using `modelcontextprotocol/go-sdk`
+- [x] Makefile / `task` targets: `build`, `test`, `lint`, `fmt`
+- [x] CI (GitHub Actions): vet, golangci-lint, staticcheck, govulncheck, `go test -race`
+- [x] `.golangci.yml`, `.gitignore`, README stub
+- [x] LICENSE (MIT)
 
 **Done when:** `claude mcp add fortigate -- ./fortigate-mcp` lists the ping tool.
 

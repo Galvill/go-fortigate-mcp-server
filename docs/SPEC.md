@@ -52,7 +52,7 @@ FortiGate firewalls through the FortiOS REST API.
 
 | Concern | Choice |
 |---|---|
-| Language | Go (latest stable, currently 1.25+) |
+| Language | Go 1.26+ (built with the latest stable toolchain, pinned via `toolchain` in go.mod) |
 | MCP SDK | `github.com/modelcontextprotocol/go-sdk` (typed handlers → JSON Schema generation, stdio + streamable HTTP incl. stateless) |
 | HTTP client | `net/http`, a custom `Transport` per device for TLS settings |
 | Config | YAML file + env vars + flags (`flag` stdlib or `spf13/pflag`; no heavy framework) |
