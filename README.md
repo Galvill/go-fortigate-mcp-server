@@ -47,23 +47,27 @@ go install github.com/galvill/go-fortigate-mcp-server/cmd/fortigate-mcp@latest
 
 ### Verify a release
 
-Each release has a `checksums.txt` covering every archive and SBOM, signed
-with [Sigstore](https://www.sigstore.dev/) by the release workflow. With
-[cosign](https://docs.sigstore.dev/cosign/system_config/installation/):
+The release workflow, which runs on `main`, signs each release's
+`checksums.txt` (covering every archive and SBOM) and the container images
+with [Sigstore](https://www.sigstore.dev/). Verify them with
+[cosign](https://docs.sigstore.dev/cosign/system_config/installation/) v3.
+With cosign 2.6.x, add `--new-bundle-format`; older versions can't read these
+signatures.
 
 ```sh
 cosign verify-blob checksums.txt \
   --bundle checksums.txt.sigstore.json \
-  --certificate-identity-regexp '^https://github\.com/Galvill/go-fortigate-mcp-server/\.github/workflows/release\.yml@refs/tags/v' \
+  --certificate-identity https://github.com/Galvill/go-fortigate-mcp-server/.github/workflows/release.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 sha256sum --ignore-missing -c checksums.txt
 ```
 
-Container images are signed the same way:
+The image signature is attached to the multi-platform image, so verify a
+release tag (or its digest) rather than a platform-specific image:
 
 ```sh
-cosign verify ghcr.io/galvill/go-fortigate-mcp-server:<version> \
-  --certificate-identity-regexp '^https://github\.com/Galvill/go-fortigate-mcp-server/\.github/workflows/release\.yml@refs/tags/v' \
+cosign verify ghcr.io/galvill/go-fortigate-mcp-server:0.1.0 \
+  --certificate-identity https://github.com/Galvill/go-fortigate-mcp-server/.github/workflows/release.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
