@@ -1,37 +1,59 @@
 name: Release
 
+# Release Please keeps a release PR open that bumps the version and updates
+# CHANGELOG.md from the conventional commits merged to main. Merging that PR
+# tags the release and creates the GitHub release; GoReleaser then attaches
+# binaries, SBOMs and signatures to it and pushes the container images.
+
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
 
 permissions:
   contents: read
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # create the GitHub release
+      contents: write # release commits, tags and GitHub releases
+      pull-requests: write # the release PR
+      issues: write # labels on the release PR
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          # PRs opened with GITHUB_TOKEN don't trigger CI. Set a
+          # RELEASE_PLEASE_TOKEN secret (fine-grained PAT or GitHub App token)
+          # for checks to run on the release PR.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  goreleaser:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload release assets
       packages: write # push images to ghcr.io
       id-token: write # keyless cosign signing
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
           fetch-depth: 0
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - run: go test -race ./...
-      - name: Release notes from CHANGELOG.md
-        run: |
-          version="${GITHUB_REF_NAME#v}"
-          awk -v v="$version" '
-            /^## \[/ { if (found) exit; found = index($0, "## [" v "]") == 1; next }
-            found' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
-          if [ ! -s "$RUNNER_TEMP/notes.md" ]; then
-            echo "::error::CHANGELOG.md has no section for $version"
-            exit 1
-          fi
       - uses: sigstore/cosign-installer@v4
       - uses: anchore/sbom-action/download-syft@v0
       - uses: docker/setup-qemu-action@v4
@@ -45,6 +67,6 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean --release-notes ${{ runner.temp }}/notes.md
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

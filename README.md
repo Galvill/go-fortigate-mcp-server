@@ -347,12 +347,28 @@ From 1.0, removing or renaming any of these, adding a required tool argument,
 or narrowing an accepted value needs a major version. Additions, such as new
 tools, optional arguments or output fields, are minor versions. Tool
 descriptions may be reworded in any release. Before 1.0, breaking changes
-can land in minor versions and are listed under **Changed** or **Removed** in
+can land in minor versions and are listed under **⚠ BREAKING CHANGES** in
 [CHANGELOG.md](CHANGELOG.md).
 
 Tool schemas are snapshotted in
 [internal/server/testdata/tools.golden.json](internal/server/testdata/tools.golden.json),
 so every change to them shows up in review.
+
+Versions and [CHANGELOG.md](CHANGELOG.md) are managed by
+[Release Please](https://github.com/googleapis/release-please) from
+[Conventional Commits](https://www.conventionalcommits.org/) on `main`:
+
+| Commit | Release |
+|---|---|
+| `fix: ...` | patch |
+| `feat: ...` | minor |
+| `feat!: ...` or a `BREAKING CHANGE:` footer | major (minor before 1.0) |
+| `docs:`, `test:`, `ci:`, `chore:`, `refactor:` | none, and not in the changelog |
+
+Release Please keeps a release PR open with the next version and changelog.
+Merging it tags the release, and the release workflow publishes the
+binaries and images. To force a version, add a `Release-As: x.y.z` footer to
+a commit.
 
 ## Development
 
@@ -371,7 +387,7 @@ Integration tests run against a lab FortiGate-VM with
 [test/integration](test/integration/lifecycle_test.go) lists the variables
 they need.
 
-Releases are cut by pushing a `v*` tag; see [CHANGELOG.md](CHANGELOG.md).
+Commit messages follow Conventional Commits, since they drive releases (see [Versioning](#versioning)).
 
 ## License
 

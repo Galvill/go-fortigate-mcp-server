@@ -1,4 +1,4 @@
-# Release with: git tag vX.Y.Z && git push --tags (see .github/workflows/release.yml).
+# Releases run from .github/workflows/release.yml after a Release Please PR is merged.
 # Dry run locally: goreleaser release --snapshot --clean
 version: 2
 
@@ -31,7 +31,7 @@ archives:
     files:
       - LICENSE
       - README.md
-      - CHANGELOG.md
+      - CHANGELOG*.md # created by the first Release Please PR
       - docs/TOOLS.md
 
 checksum:
@@ -75,7 +75,9 @@ docker_signs:
     args: ["sign", "--yes", "${artifact}@${digest}"]
 
 changelog:
-  disable: true # release notes come from CHANGELOG.md
+  disable: true # Release Please writes the notes and CHANGELOG.md
 
 release:
+  # Release Please creates the release; add the assets and keep its notes.
+  mode: keep-existing
   prerelease: auto
