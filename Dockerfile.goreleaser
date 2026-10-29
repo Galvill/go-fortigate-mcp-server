@@ -1,0 +1,8 @@
+# Used by GoReleaser (dockers_v2), which places each platform's binary under
+# $TARGETPLATFORM/ in the build context. For local builds, use Dockerfile.
+FROM gcr.io/distroless/static-debian13:nonroot
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/fortigate-mcp /usr/local/bin/fortigate-mcp
+USER nonroot:nonroot
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/fortigate-mcp"]

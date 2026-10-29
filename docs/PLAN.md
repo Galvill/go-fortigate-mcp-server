@@ -74,12 +74,12 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 - [x] Prompts: `troubleshoot_connectivity`, `audit_policies`, `onboard_site_to_site_vpn`
 - [x] Optional Prometheus `/metrics` (`--metrics`, http transport only), plus debug-level tool-call logging
 
-## M6 — Packaging & docs (1–2 days)
+## M6 — Packaging & docs (1–2 days) — done (release workflow not yet run on a real tag)
 
-- [ ] GoReleaser (multi-OS/arch), SBOM, checksums, signed artifacts
-- [ ] Distroless Dockerfile (nonroot, read-only FS), example `docker run` with env/secrets
-- [ ] README: quick start (single device via env), multi-device config, Claude Code / Claude Desktop setup snippets, HTTP deployment behind an authenticating reverse proxy (example config), FortiGate REST API admin setup (scoped profile, trusted hosts), tool catalog (generated from registry)
-- [ ] `CHANGELOG.md`, versioning policy (tool names/schemas are API)
+- [x] GoReleaser (multi-OS/arch), SBOM, checksums, signed artifacts (cosign keyless; `.github/workflows/release.yml` on `v*` tags)
+- [x] Distroless Dockerfile (nonroot, read-only FS), example `docker run` with env/secrets
+- [x] README: quick start (single device via env), multi-device config, Claude Code / Claude Desktop setup snippets, HTTP deployment behind an authenticating reverse proxy (example config), FortiGate REST API admin setup (scoped profile, trusted hosts), tool catalog (generated from registry: `docs/TOOLS.md`, kept in sync by `TestToolCatalog`; nginx example in `docs/deploy/nginx.conf`)
+- [x] `CHANGELOG.md`, versioning policy (tool names/schemas are API)
 
 ## Cross-cutting: FortiOS version matrix
 

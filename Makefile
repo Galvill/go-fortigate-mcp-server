@@ -4,7 +4,7 @@ LDFLAGS       := -s -w -X main.version=$(VERSION)
 GOLANGCI_LINT := go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
 GOVULNCHECK   := go run golang.org/x/vuln/cmd/govulncheck@v1.9.0
 
-.PHONY: all build test lint fmt vuln tidy clean
+.PHONY: all build test lint fmt vuln tidy docs docker snapshot clean
 
 all: lint test build
 
@@ -25,6 +25,15 @@ vuln:
 
 tidy:
 	go mod tidy
+
+docs:
+	go test ./internal/server -run 'Golden|Catalog' -update
+
+docker:
+	docker build --build-arg VERSION=$(VERSION) -t $(BINARY):$(VERSION) .
+
+snapshot:
+	goreleaser release --snapshot --clean --skip=sign
 
 clean:
 	rm -rf bin
