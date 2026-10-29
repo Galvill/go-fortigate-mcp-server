@@ -387,7 +387,7 @@ Integration tests run against a lab FortiGate-VM with
 [test/integration](test/integration/lifecycle_test.go) lists the variables
 they need.
 
-Commit messages follow Conventional Commits, since they drive releases (see [Versioning](#versioning)).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests (titles follow Conventional Commits, since they drive releases), and [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
 ## License
 
