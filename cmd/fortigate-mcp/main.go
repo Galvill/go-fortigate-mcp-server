@@ -18,6 +18,7 @@ import (
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
 	"github.com/galvill/go-fortigate-mcp-server/internal/httpserver"
 	"github.com/galvill/go-fortigate-mcp-server/internal/logging"
+	"github.com/galvill/go-fortigate-mcp-server/internal/metrics"
 	"github.com/galvill/go-fortigate-mcp-server/internal/server"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 )
@@ -71,7 +72,15 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 	}
 	auditLog := audit.New(auditOut, cfg.Server.AuditBodies, logger)
 
-	inv, err := devices.New(cfg, devices.Options{Logger: logger, Observer: auditLog.Observe})
+	devOpts := devices.Options{Logger: logger, Observer: auditLog.Observe}
+	var m *metrics.Metrics
+	var middleware []mcp.Middleware
+	if cfg.Server.HTTP.Metrics {
+		m = metrics.New()
+		devOpts.OnRequest = m.OnRequest
+		middleware = append(middleware, m.Middleware)
+	}
+	inv, err := devices.New(cfg, devOpts)
 	if err != nil {
 		return err
 	}
@@ -90,6 +99,7 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 			BackupDir:      cfg.Server.BackupDir,
 			IdentityHeader: cfg.Server.HTTP.IdentityHeader,
 		},
+		Middleware: middleware,
 	})
 	if err != nil {
 		return err
@@ -97,7 +107,11 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 	logger.Info("starting", "version", version, "transport", cfg.Server.Transport,
 		"devices", inv.Names(), "default_device", inv.Default(), "read_only", cfg.Server.ReadOnly)
 	if cfg.Server.Transport == "http" {
-		return httpserver.Serve(ctx, httpserver.Options{Config: cfg.Server.HTTP, Server: s, Logger: logger, Devices: inv.Names()})
+		opts := httpserver.Options{Config: cfg.Server.HTTP, Server: s, Logger: logger, Devices: inv.Names()}
+		if m != nil {
+			opts.Metrics = m.Handler()
+		}
+		return httpserver.Serve(ctx, opts)
 	}
 	if err := s.Run(ctx, &mcp.StdioTransport{}); err != nil && !errors.Is(err, context.Canceled) {
 		return err

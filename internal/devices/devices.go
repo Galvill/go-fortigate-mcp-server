@@ -45,6 +45,8 @@ type Options struct {
 	Logger *slog.Logger
 	// Observer is called after every write request; see fortios.Options.Observer.
 	Observer func(context.Context, fortios.Call)
+	// OnRequest is called after every request; see fortios.Options.OnRequest.
+	OnRequest func(context.Context, fortios.Call)
 }
 
 // New builds an inventory and a client per device. It does not contact the devices.
@@ -62,6 +64,7 @@ func New(cfg *config.Config, opts Options) (*Inventory, error) {
 			Logger:             opts.Logger,
 			ReadOnly:           d.ReadOnly,
 			Observer:           opts.Observer,
+			OnRequest:          opts.OnRequest,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("device %q: %w", d.Name, err)

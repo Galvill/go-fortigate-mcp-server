@@ -82,6 +82,8 @@ type HTTP struct {
 	MaxBodyBytes int64
 	// TLSCert and TLSKey enable TLS when both are set.
 	TLSCert, TLSKey string
+	// Metrics serves Prometheus metrics at /metrics.
+	Metrics bool
 }
 
 // DefaultMaxBodyBytes is the default cap on an HTTP request body.
@@ -156,6 +158,7 @@ var settings = []setting{
 	{flag: "http-max-body-bytes", env: "FORTIGATE_MCP_HTTP_MAX_BODY_BYTES", def: strconv.Itoa(DefaultMaxBodyBytes), usage: "maximum http request body size in bytes"},
 	{flag: "tls-cert", env: "FORTIGATE_MCP_TLS_CERT", usage: "TLS certificate file for the http transport (with -tls-key)"},
 	{flag: "tls-key", env: "FORTIGATE_MCP_TLS_KEY", usage: "TLS key file for the http transport (with -tls-cert)"},
+	{flag: "metrics", env: "FORTIGATE_MCP_METRICS", def: "false", usage: "serve Prometheus metrics at /metrics (http transport only)", boolean: true},
 }
 
 // Flags holds the server flags registered on a FlagSet.
@@ -286,6 +289,12 @@ func loadHTTP(cfg *Config, value func(string) string) error {
 	}
 	if h.MaxBodyBytes, err = strconv.ParseInt(value("http-max-body-bytes"), 10, 64); err != nil || h.MaxBodyBytes < 1024 {
 		return fmt.Errorf("http-max-body-bytes: want an integer >= 1024, got %q", value("http-max-body-bytes"))
+	}
+	if h.Metrics, err = strconv.ParseBool(value("metrics")); err != nil {
+		return fmt.Errorf("metrics: invalid boolean %q", value("metrics"))
+	}
+	if h.Metrics && cfg.Server.Transport != "http" {
+		return errors.New("metrics needs the http transport")
 	}
 	h.TLSCert, h.TLSKey = value("tls-cert"), value("tls-key")
 	if (h.TLSCert == "") != (h.TLSKey == "") {

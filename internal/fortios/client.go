@@ -55,9 +55,12 @@ type Options struct {
 	// Observer, if set, is called after every non-GET request, whether it
 	// succeeded or not. The server uses it for the audit log.
 	Observer func(context.Context, Call)
+	// OnRequest, if set, is called after every request, including GETs.
+	// The server uses it for metrics.
+	OnRequest func(context.Context, Call)
 }
 
-// Call describes a completed non-GET request, for auditing.
+// Call describes a completed request, for auditing and metrics.
 type Call struct {
 	Device string
 	Method string
@@ -88,6 +91,7 @@ type Client struct {
 	logger       *slog.Logger
 	readOnly     bool
 	observer     func(context.Context, Call)
+	onRequest    func(context.Context, Call)
 
 	mu   sync.Mutex
 	info *Info
@@ -138,6 +142,7 @@ func New(opts Options) (*Client, error) {
 		logger:       opts.Logger,
 		readOnly:     opts.ReadOnly,
 		observer:     opts.Observer,
+		onRequest:    opts.OnRequest,
 	}
 	if c.logger == nil {
 		c.logger = slog.New(slog.DiscardHandler)
@@ -247,28 +252,30 @@ func (c *Client) do(ctx context.Context, r request) (*Response, error) {
 	if q := query.Encode(); q != "" {
 		target += "?" + q
 	}
-	if r.method != http.MethodGet && c.observer != nil {
-		start := time.Now()
-		var resp *Response
-		var err error
-		defer func() {
-			call := Call{
-				Device: c.name, Method: r.method, Path: r.apiPath(), Mkey: r.mkey,
-				VDOM: query.Get("vdom"), Body: body, Duration: time.Since(start), Err: err,
-			}
-			var apiErr *APIError
-			switch {
-			case err == nil:
-				call.HTTPStatus, call.Revision = cmp.Or(resp.HTTPStatus, http.StatusOK), resp.Revision
-			case errors.As(err, &apiErr):
-				call.HTTPStatus = apiErr.HTTPStatus
-			}
-			c.observer(ctx, call)
-		}()
-		resp, err = c.send(ctx, r, target, body)
-		return resp, err
+	audited := r.method != http.MethodGet && c.observer != nil
+	if !audited && c.onRequest == nil {
+		return c.send(ctx, r, target, body)
 	}
-	return c.send(ctx, r, target, body)
+	start := time.Now()
+	resp, err := c.send(ctx, r, target, body)
+	call := Call{
+		Device: c.name, Method: r.method, Path: r.apiPath(), Mkey: r.mkey,
+		VDOM: query.Get("vdom"), Body: body, Duration: time.Since(start), Err: err,
+	}
+	var apiErr *APIError
+	switch {
+	case err == nil:
+		call.HTTPStatus, call.Revision = cmp.Or(resp.HTTPStatus, http.StatusOK), resp.Revision
+	case errors.As(err, &apiErr):
+		call.HTTPStatus = apiErr.HTTPStatus
+	}
+	if audited {
+		c.observer(ctx, call)
+	}
+	if c.onRequest != nil {
+		c.onRequest(ctx, call)
+	}
+	return resp, err
 }
 
 // send acquires a concurrency slot and performs the request with retries.

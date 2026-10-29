@@ -7,6 +7,8 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -160,5 +162,66 @@ func TestToolSchemasGolden(t *testing.T) {
 	}
 	if !bytes.Equal(got, want) {
 		t.Errorf("tool schemas changed; review and run: go test ./internal/server -run Golden -update")
+	}
+}
+
+// Prompts must only name tools that exist, and render their arguments.
+func TestPromptsReferenceExistingTools(t *testing.T) {
+	cs := connect(t, tools.Options{})
+	ctx := context.Background()
+	existing := map[string]bool{}
+	for _, tool := range listTools(t, cs) {
+		existing[tool.Name] = true
+	}
+	list, err := cs.ListPrompts(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(list.Prompts) != 3 {
+		t.Errorf("prompts = %d, want 3", len(list.Prompts))
+	}
+	toolName := regexp.MustCompile(`fgt_[a-z0-9_]+`)
+	for _, p := range list.Prompts {
+		args := map[string]string{"device": "hq", "vdom": "dmz"}
+		for _, a := range p.Arguments {
+			if a.Required {
+				args[a.Name] = "ARG-" + a.Name
+			}
+		}
+		res, err := cs.GetPrompt(ctx, &mcp.GetPromptParams{Name: p.Name, Arguments: args})
+		if err != nil {
+			t.Fatalf("%s: %v", p.Name, err)
+		}
+		text := res.Messages[0].Content.(*mcp.TextContent).Text
+		for name := range args {
+			if !strings.Contains(text, args[name]) {
+				t.Errorf("%s: argument %s not rendered", p.Name, name)
+			}
+		}
+		if strings.Contains(text, "%!") {
+			t.Errorf("%s: formatting error in %q", p.Name, text)
+		}
+		for _, name := range toolName.FindAllString(text, -1) {
+			if !existing[name] {
+				t.Errorf("%s names unknown tool %s", p.Name, name)
+			}
+		}
+		if req := slices.IndexFunc(p.Arguments, func(a *mcp.PromptArgument) bool { return a.Required }); req >= 0 {
+			delete(args, p.Arguments[req].Name)
+			if _, err := cs.GetPrompt(ctx, &mcp.GetPromptParams{Name: p.Name, Arguments: args}); err == nil {
+				t.Errorf("%s: missing required argument accepted", p.Name)
+			}
+		}
+	}
+}
+
+func TestResourcesRegistered(t *testing.T) {
+	cs := connect(t, tools.Options{BackupDir: t.TempDir()})
+	templates, err := cs.ListResourceTemplates(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(templates.ResourceTemplates) != 3 {
+		t.Errorf("templates = %d, want 3 with a backup dir", len(templates.ResourceTemplates))
 	}
 }

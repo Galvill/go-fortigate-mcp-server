@@ -21,6 +21,7 @@ import (
 	"github.com/galvill/go-fortigate-mcp-server/internal/config"
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
 	"github.com/galvill/go-fortigate-mcp-server/internal/httpserver"
+	"github.com/galvill/go-fortigate-mcp-server/internal/metrics"
 	"github.com/galvill/go-fortigate-mcp-server/internal/server"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools/toolstest"
@@ -373,5 +374,22 @@ func TestServeShutdown(t *testing.T) {
 		}
 	case <-time.After(15 * time.Second):
 		t.Fatal("server did not shut down")
+	}
+}
+
+func TestMetricsEndpoint(t *testing.T) {
+	f := newFixture(t, true)
+	s := mcp.NewServer(&mcp.Implementation{Name: "t", Version: "t"}, nil)
+	get := func(h http.Handler) int {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/metrics", nil))
+		return rec.Code
+	}
+	if code := get(httpserver.Handler(httpserver.Options{Config: f.cfg, Server: s})); code != http.StatusNotFound {
+		t.Errorf("metrics disabled: HTTP %d, want 404", code)
+	}
+	m := metrics.New()
+	if code := get(httpserver.Handler(httpserver.Options{Config: f.cfg, Server: s, Metrics: m.Handler()})); code != http.StatusOK {
+		t.Errorf("metrics enabled: HTTP %d", code)
 	}
 }

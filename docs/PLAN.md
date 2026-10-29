@@ -68,11 +68,11 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 
 **Done when:** two server replicas in stateless mode behind a load balancer serve the same client across requests without session affinity.
 
-## M5 — Resources, prompts, observability (1–2 days)
+## M5 — Resources, prompts, observability (1–2 days) — done
 
-- [ ] Resources from SPEC §8 (incl. resource templates for `{device}`)
-- [ ] Prompts: `troubleshoot_connectivity`, `audit_policies`, `onboard_site_to_site_vpn`
-- [ ] Optional Prometheus `/metrics`
+- [x] Resources from SPEC §8 (incl. resource templates for `{device}`)
+- [x] Prompts: `troubleshoot_connectivity`, `audit_policies`, `onboard_site_to_site_vpn`
+- [x] Optional Prometheus `/metrics` (`--metrics`, http transport only), plus debug-level tool-call logging
 
 ## M6 — Packaging & docs (1–2 days)
 

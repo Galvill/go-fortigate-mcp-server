@@ -330,9 +330,9 @@ func TestHTTPSettings(t *testing.T) {
 	env["FORTIGATE_MCP_TRANSPORT"] = "http"
 	env["FORTIGATE_MCP_ALLOWED_ORIGINS"] = "https://Console.example.com, http://localhost:3000/"
 	env["FORTIGATE_MCP_AUDIT_IDENTITY_HEADER"] = "X-Forwarded-User"
-	cfg = mustLoad(t, []string{"-stateless", "-http-addr", ":9000", "-http-path", "/api/mcp"}, env)
+	cfg = mustLoad(t, []string{"-stateless", "-metrics", "-http-addr", ":9000", "-http-path", "/api/mcp"}, env)
 	h = cfg.Server.HTTP
-	if cfg.Server.Transport != "http" || !h.Stateless || h.Addr != ":9000" || h.Path != "/api/mcp" || h.IdentityHeader != "X-Forwarded-User" {
+	if cfg.Server.Transport != "http" || !h.Stateless || !h.Metrics || h.Addr != ":9000" || h.Path != "/api/mcp" || h.IdentityHeader != "X-Forwarded-User" {
 		t.Errorf("env/flags: %+v", h)
 	}
 	if strings.Join(h.AllowedOrigins, ",") != "https://console.example.com,http://localhost:3000" {
@@ -349,6 +349,7 @@ func TestHTTPSettings(t *testing.T) {
 		{"FORTIGATE_MCP_AUDIT_IDENTITY_HEADER": "X User"},
 		{"FORTIGATE_MCP_HTTP_MAX_BODY_BYTES": "10"},
 		{"FORTIGATE_MCP_TLS_CERT": "/cert.pem"},
+		{"FORTIGATE_MCP_METRICS": "true"},
 	} {
 		e := map[string]string{"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t"}
 		for k, v := range bad {

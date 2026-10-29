@@ -38,10 +38,12 @@ type Options struct {
 	Logger *slog.Logger
 	// Devices is reported by /readyz.
 	Devices []string
+	// Metrics, if set, is served at /metrics.
+	Metrics http.Handler
 }
 
 // Handler returns the HTTP handler: the MCP endpoint at Config.Path, plus
-// /healthz and /readyz.
+// /healthz, /readyz and, if enabled, /metrics.
 func Handler(opts Options) http.Handler {
 	logger := opts.Logger
 	if logger == nil {
@@ -61,6 +63,9 @@ func Handler(opts Options) http.Handler {
 	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, map[string]any{"status": "ready", "devices": opts.Devices})
 	})
+	if opts.Metrics != nil {
+		mux.Handle("GET /metrics", opts.Metrics)
+	}
 	return mux
 }
 

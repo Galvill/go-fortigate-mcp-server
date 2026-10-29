@@ -1,14 +1,18 @@
-// Package server builds the MCP server and registers its tools.
+// Package server builds the MCP server and registers its tools, resources
+// and prompts.
 package server
 
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
 	"github.com/galvill/go-fortigate-mcp-server/internal/logging"
+	"github.com/galvill/go-fortigate-mcp-server/internal/prompts"
+	"github.com/galvill/go-fortigate-mcp-server/internal/resources"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools/admin"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools/generic"
@@ -33,6 +37,8 @@ type Options struct {
 	Logger    *slog.Logger
 	Inventory *devices.Inventory
 	Tools     tools.Options
+	// Middleware wraps every incoming MCP request, e.g. for metrics.
+	Middleware []mcp.Middleware
 }
 
 // registrars add each toolset's tools.
@@ -73,7 +79,33 @@ func New(opts Options) (*mcp.Server, error) {
 	for _, register := range registrars {
 		register(reg)
 	}
+	resources.Register(s, resources.Options{
+		Inventory: opts.Inventory, BackupDir: opts.Tools.BackupDir, MaxBytes: opts.Tools.MaxResultBytes,
+	})
+	prompts.Register(s)
+	s.AddReceivingMiddleware(append([]mcp.Middleware{logToolCalls(logger)}, opts.Middleware...)...)
 	return s, nil
+}
+
+// logToolCalls logs each tool call's name, duration and outcome at debug level.
+func logToolCalls(logger *slog.Logger) mcp.Middleware {
+	return func(next mcp.MethodHandler) mcp.MethodHandler {
+		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+			call, ok := req.(*mcp.CallToolRequest)
+			if !ok || call.Params == nil || !logger.Enabled(ctx, slog.LevelDebug) {
+				return next(ctx, method, req)
+			}
+			start := time.Now()
+			res, err := next(ctx, method, req)
+			isError := err != nil
+			if r, ok := res.(*mcp.CallToolResult); ok && r.IsError {
+				isError = true
+			}
+			logger.DebugContext(ctx, "tool call", "tool", call.Params.Name, "session_id", call.Session.ID(),
+				"duration_ms", time.Since(start).Milliseconds(), "is_error", isError)
+			return res, err
+		}
+	}
 }
 
 func sdkLogger(l *slog.Logger) *slog.Logger {

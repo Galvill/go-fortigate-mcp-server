@@ -410,3 +410,31 @@ func TestParseVersion(t *testing.T) {
 		}
 	}
 }
+
+func TestHooks(t *testing.T) {
+	fgt := fakefgt.New(t)
+	var observed, requested []fortios.Call
+	c := newClient(t, fgt, func(o *fortios.Options) {
+		o.Observer = func(_ context.Context, call fortios.Call) { observed = append(observed, call) }
+		o.OnRequest = func(_ context.Context, call fortios.Call) { requested = append(requested, call) }
+	})
+	ctx := context.Background()
+	if _, err := c.CMDBGet(ctx, "firewall/address", "", nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.CMDBCreate(ctx, "firewall/address", map[string]any{"name": "a"}, nil); err != nil {
+		t.Fatal(err)
+	}
+	fgt.FailNext(http.MethodGet, "cmdb/firewall/address", http.StatusNotFound, 1)
+	_, _ = c.CMDBGet(ctx, "firewall/address", "", nil)
+
+	if len(observed) != 1 || observed[0].Method != http.MethodPost {
+		t.Errorf("observer saw %+v, want only the write", observed)
+	}
+	if len(requested) != 3 || requested[0].Method != http.MethodGet || requested[1].HTTPStatus != http.StatusOK || requested[2].HTTPStatus != http.StatusNotFound {
+		t.Errorf("OnRequest saw %+v", requested)
+	}
+	if requested[0].Path != "cmdb/firewall/address" || requested[0].Device != "test" {
+		t.Errorf("call = %+v", requested[0])
+	}
+}
