@@ -56,14 +56,15 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 
 **Done when:** integration suite creates an address → group → policy → moves it → deletes all, with audit records, on 7.2, 7.4 and 7.6 VMs.
 
-## M4 — HTTP transports (1–2 days)
+## M4 — HTTP transports (1–2 days) — done
 
-- [ ] `--transport http` with streamable HTTP handler, stateful and `--stateless`
-- [ ] Origin check, body limit, timeouts, graceful shutdown (no client authentication; see SPEC §9)
-- [ ] `--audit-identity-header` passthrough into audit records
-- [ ] `/healthz`, `/readyz`, optional `--tls-cert/--tls-key`
-- [ ] Warning log when binding to a non-loopback address
-- [ ] Tests: stateless request without session id, Origin rejection, multiple devices served from one stateless instance
+- [x] `--transport http` with streamable HTTP handler, stateful and `--stateless`
+- [x] Origin check (`--allowed-origins`), body limit, timeouts, graceful shutdown (no client authentication; see SPEC §9)
+- [x] `--audit-identity-header` passthrough into audit records (plus `remote_addr`, which clients can't forge)
+- [x] `/healthz`, `/readyz`, optional `--tls-cert/--tls-key`
+- [x] Warning log when binding to a non-loopback address
+- [x] Tests: stateless request without session id, Origin rejection, multiple devices served from one stateless instance, body limit, audit attribution, graceful shutdown
+- [x] Acceptance: `TestStatelessReplicas` runs one client through a round-robin balancer across two stateless replicas
 
 **Done when:** two server replicas in stateless mode behind a load balancer serve the same client across requests without session affinity.
 

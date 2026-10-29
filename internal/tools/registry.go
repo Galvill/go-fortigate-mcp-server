@@ -39,6 +39,9 @@ type Options struct {
 	MaxResultBytes int
 	// BackupDir, if set, is where fgt_config_backup may save files.
 	BackupDir string
+	// IdentityHeader names an HTTP header, set by an upstream proxy, whose
+	// value is recorded in audit records.
+	IdentityHeader string
 }
 
 // Registry registers tools on an MCP server, honoring the enabled toolsets
@@ -50,11 +53,12 @@ type Registry struct {
 	readOnly  bool
 	maxBytes  int
 	backupDir string
+	identity  string
 }
 
 // NewRegistry validates the options and returns a registry.
 func NewRegistry(s *mcp.Server, inv *devices.Inventory, opts Options) (*Registry, error) {
-	r := &Registry{server: s, inv: inv, readOnly: opts.ReadOnly, maxBytes: opts.MaxResultBytes, backupDir: opts.BackupDir}
+	r := &Registry{server: s, inv: inv, readOnly: opts.ReadOnly, maxBytes: opts.MaxResultBytes, backupDir: opts.BackupDir, identity: opts.IdentityHeader}
 	if opts.Toolsets != nil {
 		r.enabled = map[string]bool{}
 		for _, ts := range opts.Toolsets {
@@ -110,8 +114,9 @@ const (
 )
 
 // AddWrite registers a tool that changes devices. It is skipped in
-// read-only mode. Calls are tagged with the tool name and session so the
-// audit log can attribute the requests they make.
+// read-only mode. Calls are tagged with the tool name, session, client
+// address and proxy-supplied identity so the audit log can attribute the
+// requests they make.
 func AddWrite[In, Out any](r *Registry, toolset string, kind WriteKind, t *mcp.Tool, h mcp.ToolHandlerFor[In, Out]) {
 	if !r.isEnabled(toolset) || r.readOnly {
 		return
@@ -128,6 +133,12 @@ func AddWrite[In, Out any](r *Registry, toolset string, kind WriteKind, t *mcp.T
 		info := &audit.Info{Tool: name}
 		if req != nil && req.Session != nil {
 			info.SessionID = req.Session.ID()
+		}
+		if req != nil && req.Extra != nil && req.Extra.Header != nil {
+			info.RemoteAddr = req.Extra.Header.Get(audit.RemoteAddrHeader)
+			if r.identity != "" {
+				info.Identity = req.Extra.Header.Get(r.identity)
+			}
 		}
 		return h(audit.WithInfo(ctx, info), req, in)
 	})

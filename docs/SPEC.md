@@ -148,6 +148,9 @@ replaces a file `token_file`, and vice versa.
 | `--http-addr` | `FORTIGATE_MCP_HTTP_ADDR` | `127.0.0.1:8080` | Listen address |
 | `--http-path` | `FORTIGATE_MCP_HTTP_PATH` | `/mcp` | Endpoint path |
 | `--stateless` | `FORTIGATE_MCP_STATELESS` | `false` | Stateless streamable HTTP (no sessions) |
+| `--allowed-origins` | `FORTIGATE_MCP_ALLOWED_ORIGINS` | — | Comma list of browser origins (`scheme://host[:port]`) allowed to call the HTTP endpoint. Requests with any other `Origin` header get 403; requests without one are allowed. |
+| `--http-max-body-bytes` | `FORTIGATE_MCP_HTTP_MAX_BODY_BYTES` | `4194304` | Maximum HTTP request body size |
+| `--tls-cert`, `--tls-key` | `FORTIGATE_MCP_TLS_CERT`, `FORTIGATE_MCP_TLS_KEY` | — | Serve HTTPS directly (both or neither) |
 | `--audit-identity-header` | `FORTIGATE_MCP_AUDIT_IDENTITY_HEADER` | — | Optional header set by an upstream proxy (e.g. `X-Forwarded-User`) to record in audit logs. Recorded only; never used for access decisions. |
 | `--backup-dir` | `FORTIGATE_MCP_BACKUP_DIR` | — (disabled) | Optional directory for saving config backups to disk (§7.7) |
 | `--toolsets` | `FORTIGATE_MCP_TOOLSETS` | `all` | Comma list: `system,policy,objects,network,vpn,admin,generic` |
@@ -218,10 +221,17 @@ reachable) model/version/serial/hostname. Tokens are never returned.
 | HTTP stateful | `mcp.NewStreamableHTTPHandler(..., &StreamableHTTPOptions{})` | Sessions via `Mcp-Session-Id`. Supports server→client notifications (progress, list changes). |
 | HTTP stateless | same, `Stateless: true` | No session state. Each POST is self-contained, so it scales horizontally behind a load balancer. Server-initiated requests (elicitation, sampling) are unavailable, so **no tool depends on them**. |
 
-HTTP extras: `/healthz` (liveness), `/readyz` (config loaded; optionally pings
-devices), graceful shutdown on SIGINT/SIGTERM, configurable read/write
-timeouts, request size limit, and optional TLS (`--tls-cert`/`--tls-key`) for
-setups without a reverse proxy.
+HTTP extras: `/healthz` (liveness), `/readyz` (config loaded; lists device
+names, without contacting devices), graceful shutdown on SIGINT/SIGTERM
+(10 s, then open streams are dropped), a 10 s read-header timeout and 2 min
+idle timeout (no write timeout, since tool calls and streams can be long),
+stateful sessions closed after 30 min idle, a request size limit, and optional
+TLS (`--tls-cert`/`--tls-key`) for setups without a reverse proxy.
+
+The audit record's `remote_addr` is the TCP peer (the proxy, when there is
+one); `identity` comes from `--audit-identity-header`. The SDK's per-session
+log lines are shown only at debug level, since stateless mode creates a session
+per request.
 
 The server does **not** authenticate MCP clients in any transport. In HTTP
 mode, authentication belongs to whatever sits in front of it (reverse proxy,
@@ -447,7 +457,10 @@ Prompts:
   mTLS at an ingress, or a private network) and should keep the listener on
   loopback or an internal interface. The default bind is `127.0.0.1`. Docs
   include a reverse-proxy example.
-- HTTP mode: an `Origin` check guards against DNS rebinding, and request
+- HTTP mode: any request with an `Origin` header not in `--allowed-origins`
+  is rejected, which guards against DNS rebinding and cross-site requests from
+  browsers (a rebound page's Origin matches its Host, so a same-origin check
+  isn't enough). The SDK's localhost Host-header protection stays on. Request
   bodies are size-limited.
 - FortiGate targets and tokens come only from server config, so clients can't
   point the server at arbitrary hosts. The FortiOS client follows no redirects.

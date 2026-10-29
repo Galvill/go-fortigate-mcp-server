@@ -318,3 +318,44 @@ func TestAuditAndBackupSettings(t *testing.T) {
 		t.Errorf("file as backup dir: err = %v", err)
 	}
 }
+
+func TestHTTPSettings(t *testing.T) {
+	env := map[string]string{"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t"}
+	cfg := mustLoad(t, nil, env)
+	h := cfg.Server.HTTP
+	if cfg.Server.Transport != "stdio" || h.Addr != "127.0.0.1:8080" || h.Path != "/mcp" || h.Stateless || h.MaxBodyBytes != DefaultMaxBodyBytes {
+		t.Errorf("defaults: %+v %+v", cfg.Server.Transport, h)
+	}
+
+	env["FORTIGATE_MCP_TRANSPORT"] = "http"
+	env["FORTIGATE_MCP_ALLOWED_ORIGINS"] = "https://Console.example.com, http://localhost:3000/"
+	env["FORTIGATE_MCP_AUDIT_IDENTITY_HEADER"] = "X-Forwarded-User"
+	cfg = mustLoad(t, []string{"-stateless", "-http-addr", ":9000", "-http-path", "/api/mcp"}, env)
+	h = cfg.Server.HTTP
+	if cfg.Server.Transport != "http" || !h.Stateless || h.Addr != ":9000" || h.Path != "/api/mcp" || h.IdentityHeader != "X-Forwarded-User" {
+		t.Errorf("env/flags: %+v", h)
+	}
+	if strings.Join(h.AllowedOrigins, ",") != "https://console.example.com,http://localhost:3000" {
+		t.Errorf("origins = %v", h.AllowedOrigins)
+	}
+
+	for _, bad := range []map[string]string{
+		{"FORTIGATE_MCP_TRANSPORT": "sse"},
+		{"FORTIGATE_MCP_HTTP_PATH": "mcp"},
+		{"FORTIGATE_MCP_HTTP_PATH": "/healthz"},
+		{"FORTIGATE_MCP_STATELESS": "maybe"},
+		{"FORTIGATE_MCP_ALLOWED_ORIGINS": "example.com"},
+		{"FORTIGATE_MCP_ALLOWED_ORIGINS": "https://example.com/path"},
+		{"FORTIGATE_MCP_AUDIT_IDENTITY_HEADER": "X User"},
+		{"FORTIGATE_MCP_HTTP_MAX_BODY_BYTES": "10"},
+		{"FORTIGATE_MCP_TLS_CERT": "/cert.pem"},
+	} {
+		e := map[string]string{"FORTIGATE_HOST": "fw", "FORTIGATE_API_TOKEN": "t"}
+		for k, v := range bad {
+			e[k] = v
+		}
+		if _, err := load(t, nil, e); err == nil {
+			t.Errorf("%v: expected error", bad)
+		}
+	}
+}

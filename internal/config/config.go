@@ -60,7 +60,32 @@ type Server struct {
 	AuditBodies bool
 	// BackupDir, if set, is where fgt_config_backup may save files.
 	BackupDir string
+	// Transport is "stdio" or "http".
+	Transport string
+	// HTTP holds settings for the http transport.
+	HTTP HTTP
 }
+
+// HTTP holds settings for the streamable HTTP transport.
+type HTTP struct {
+	Addr string
+	// Path is the MCP endpoint path, starting with "/".
+	Path      string
+	Stateless bool
+	// AllowedOrigins lists browser origins (scheme://host[:port]) allowed to
+	// call the endpoint. Requests with any other Origin header are rejected.
+	AllowedOrigins []string
+	// IdentityHeader names a header set by an upstream proxy whose value is
+	// recorded in audit records. It is never used for access decisions.
+	IdentityHeader string
+	// MaxBodyBytes caps the size of a request body.
+	MaxBodyBytes int64
+	// TLSCert and TLSKey enable TLS when both are set.
+	TLSCert, TLSKey string
+}
+
+// DefaultMaxBodyBytes is the default cap on an HTTP request body.
+const DefaultMaxBodyBytes = 4 << 20
 
 // DefaultMaxResultBytes is the default cap on a tool result's size.
 const DefaultMaxResultBytes = 200_000
@@ -122,6 +147,15 @@ var settings = []setting{
 	{flag: "audit-log", env: "FORTIGATE_MCP_AUDIT_LOG", usage: "audit log file (JSON lines); default stderr"},
 	{flag: "audit-bodies", env: "FORTIGATE_MCP_AUDIT_BODIES", def: "false", usage: "include request bodies, secrets redacted, in the audit log", boolean: true},
 	{flag: "backup-dir", env: "FORTIGATE_MCP_BACKUP_DIR", usage: "directory where config backups may be saved; disabled if unset"},
+	{flag: "transport", env: "FORTIGATE_MCP_TRANSPORT", def: "stdio", usage: "transport: stdio or http"},
+	{flag: "http-addr", env: "FORTIGATE_MCP_HTTP_ADDR", def: "127.0.0.1:8080", usage: "http listen address"},
+	{flag: "http-path", env: "FORTIGATE_MCP_HTTP_PATH", def: "/mcp", usage: "http endpoint path"},
+	{flag: "stateless", env: "FORTIGATE_MCP_STATELESS", def: "false", usage: "stateless streamable HTTP (no sessions)", boolean: true},
+	{flag: "allowed-origins", env: "FORTIGATE_MCP_ALLOWED_ORIGINS", usage: "comma-separated browser origins allowed to call the http endpoint; requests with other Origin headers are rejected"},
+	{flag: "audit-identity-header", env: "FORTIGATE_MCP_AUDIT_IDENTITY_HEADER", usage: "header set by an upstream proxy (e.g. X-Forwarded-User) to record in audit logs; never used for access decisions"},
+	{flag: "http-max-body-bytes", env: "FORTIGATE_MCP_HTTP_MAX_BODY_BYTES", def: strconv.Itoa(DefaultMaxBodyBytes), usage: "maximum http request body size in bytes"},
+	{flag: "tls-cert", env: "FORTIGATE_MCP_TLS_CERT", usage: "TLS certificate file for the http transport (with -tls-key)"},
+	{flag: "tls-key", env: "FORTIGATE_MCP_TLS_KEY", usage: "TLS key file for the http transport (with -tls-cert)"},
 }
 
 // Flags holds the server flags registered on a FlagSet.
@@ -204,6 +238,10 @@ func (f *Flags) Load(lookupEnv LookupEnv) (*Config, error) {
 		}
 	}
 
+	if err := loadHTTP(cfg, value); err != nil {
+		return nil, err
+	}
+
 	var file *fileConfig
 	if cfg.Server.ConfigFile != "" {
 		if file, err = readFile(cfg.Server.ConfigFile); err != nil {
@@ -214,6 +252,46 @@ func (f *Flags) Load(lookupEnv LookupEnv) (*Config, error) {
 		return nil, err
 	}
 	return cfg, nil
+}
+
+var headerName = regexp.MustCompile(`^[A-Za-z0-9!#$%&'*+.^_|~-]+$`)
+
+func loadHTTP(cfg *Config, value func(string) string) error {
+	var err error
+	switch cfg.Server.Transport = value("transport"); cfg.Server.Transport {
+	case "stdio", "http":
+	default:
+		return fmt.Errorf("invalid transport %q (want stdio or http)", cfg.Server.Transport)
+	}
+	h := &cfg.Server.HTTP
+	h.Addr = value("http-addr")
+	if h.Path = value("http-path"); !strings.HasPrefix(h.Path, "/") || h.Path == "/" || strings.HasPrefix(h.Path, "/healthz") || strings.HasPrefix(h.Path, "/readyz") {
+		return fmt.Errorf("http-path: want a path such as /mcp, got %q", h.Path)
+	}
+	if h.Stateless, err = strconv.ParseBool(value("stateless")); err != nil {
+		return fmt.Errorf("stateless: invalid boolean %q", value("stateless"))
+	}
+	for o := range strings.SplitSeq(value("allowed-origins"), ",") {
+		if o = strings.TrimSpace(o); o == "" {
+			continue
+		}
+		u, err := url.Parse(o)
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || (u.Path != "" && u.Path != "/") || u.RawQuery != "" {
+			return fmt.Errorf("allowed-origins: want scheme://host[:port], got %q", o)
+		}
+		h.AllowedOrigins = append(h.AllowedOrigins, u.Scheme+"://"+strings.ToLower(u.Host))
+	}
+	if h.IdentityHeader = strings.TrimSpace(value("audit-identity-header")); h.IdentityHeader != "" && !headerName.MatchString(h.IdentityHeader) {
+		return fmt.Errorf("audit-identity-header: invalid header name %q", h.IdentityHeader)
+	}
+	if h.MaxBodyBytes, err = strconv.ParseInt(value("http-max-body-bytes"), 10, 64); err != nil || h.MaxBodyBytes < 1024 {
+		return fmt.Errorf("http-max-body-bytes: want an integer >= 1024, got %q", value("http-max-body-bytes"))
+	}
+	h.TLSCert, h.TLSKey = value("tls-cert"), value("tls-key")
+	if (h.TLSCert == "") != (h.TLSKey == "") {
+		return errors.New("tls-cert and tls-key must be set together")
+	}
+	return nil
 }
 
 // checkWritableDir verifies dir exists and files can be created in it.

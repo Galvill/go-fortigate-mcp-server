@@ -8,6 +8,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
+	"github.com/galvill/go-fortigate-mcp-server/internal/logging"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools/admin"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools/generic"
@@ -57,7 +58,9 @@ func New(opts Options) (*mcp.Server, error) {
 		Title:   "FortiGate MCP Server",
 		Version: opts.Version,
 	}, &mcp.ServerOptions{
-		Logger:       logger,
+		// The SDK logs every session at info, which in stateless HTTP mode
+		// means every request. Show its messages only when debugging.
+		Logger:       sdkLogger(logger),
 		Instructions: instructions,
 	})
 
@@ -71,6 +74,13 @@ func New(opts Options) (*mcp.Server, error) {
 		register(reg)
 	}
 	return s, nil
+}
+
+func sdkLogger(l *slog.Logger) *slog.Logger {
+	if l.Enabled(context.Background(), slog.LevelDebug) {
+		return l
+	}
+	return logging.AtLeast(l, slog.LevelWarn)
 }
 
 // PingInput is the input for the ping tool.

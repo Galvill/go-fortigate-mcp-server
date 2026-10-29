@@ -16,6 +16,7 @@ import (
 	"github.com/galvill/go-fortigate-mcp-server/internal/audit"
 	"github.com/galvill/go-fortigate-mcp-server/internal/config"
 	"github.com/galvill/go-fortigate-mcp-server/internal/devices"
+	"github.com/galvill/go-fortigate-mcp-server/internal/httpserver"
 	"github.com/galvill/go-fortigate-mcp-server/internal/logging"
 	"github.com/galvill/go-fortigate-mcp-server/internal/server"
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
@@ -87,13 +88,17 @@ func run(args []string, lookupEnv config.LookupEnv, stderr io.Writer) error {
 			ReadOnly:       cfg.Server.ReadOnly,
 			MaxResultBytes: cfg.Server.MaxResultBytes,
 			BackupDir:      cfg.Server.BackupDir,
+			IdentityHeader: cfg.Server.HTTP.IdentityHeader,
 		},
 	})
 	if err != nil {
 		return err
 	}
-	logger.Info("starting", "version", version, "transport", "stdio",
+	logger.Info("starting", "version", version, "transport", cfg.Server.Transport,
 		"devices", inv.Names(), "default_device", inv.Default(), "read_only", cfg.Server.ReadOnly)
+	if cfg.Server.Transport == "http" {
+		return httpserver.Serve(ctx, httpserver.Options{Config: cfg.Server.HTTP, Server: s, Logger: logger, Devices: inv.Names()})
+	}
 	if err := s.Run(ctx, &mcp.StdioTransport{}); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}

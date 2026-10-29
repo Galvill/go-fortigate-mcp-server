@@ -3,6 +3,7 @@
 package logging
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -99,4 +100,27 @@ func Redact(v any) any {
 	default:
 		return v
 	}
+}
+
+// AtLeast returns a logger that drops records below level, for chatty
+// libraries.
+func AtLeast(l *slog.Logger, level slog.Level) *slog.Logger {
+	return slog.New(minLevel{l.Handler(), level})
+}
+
+type minLevel struct {
+	slog.Handler
+	level slog.Level
+}
+
+func (h minLevel) Enabled(ctx context.Context, l slog.Level) bool {
+	return l >= h.level && h.Handler.Enabled(ctx, l)
+}
+
+func (h minLevel) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return minLevel{h.Handler.WithAttrs(attrs), h.level}
+}
+
+func (h minLevel) WithGroup(name string) slog.Handler {
+	return minLevel{h.Handler.WithGroup(name), h.level}
 }

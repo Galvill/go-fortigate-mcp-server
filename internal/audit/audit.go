@@ -27,6 +27,10 @@ type Info struct {
 	ConfirmedHostname string
 }
 
+// RemoteAddrHeader carries the client's address from the HTTP transport to
+// tool handlers. The HTTP server always overwrites it, so clients can't set it.
+const RemoteAddrHeader = "X-Fortigate-Mcp-Remote-Addr"
+
 type ctxKey struct{}
 
 // WithInfo returns a context carrying info.

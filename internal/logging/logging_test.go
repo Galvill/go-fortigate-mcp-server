@@ -57,3 +57,18 @@ func TestIsSensitiveKey(t *testing.T) {
 		}
 	}
 }
+
+func TestAtLeast(t *testing.T) {
+	var buf bytes.Buffer
+	l, err := New(&buf, slog.LevelDebug, "text")
+	if err != nil {
+		t.Fatal(err)
+	}
+	quiet := AtLeast(l, slog.LevelWarn).With("lib", "sdk")
+	quiet.Info("hidden")
+	quiet.Warn("shown", "token", "s3cret")
+	out := buf.String()
+	if strings.Contains(out, "hidden") || !strings.Contains(out, "shown") || !strings.Contains(out, "lib=sdk") || strings.Contains(out, "s3cret") {
+		t.Errorf("output = %q", out)
+	}
+}
