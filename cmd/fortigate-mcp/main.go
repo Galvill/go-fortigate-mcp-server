@@ -9,6 +9,8 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"runtime/debug"
+	"strings"
 	"syscall"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -23,10 +25,26 @@ import (
 	"github.com/galvill/go-fortigate-mcp-server/internal/tools"
 )
 
-// version is set at build time via -ldflags "-X main.version=...".
+// version is set at build time via -ldflags "-X main.version=...". Builds
+// without it, such as go install, use the module version Go records (see
+// resolveVersion). It must stay a constant for -X to apply.
 var version = "dev"
 
+// resolveVersion returns v unless it is the "dev" default, in which case it
+// returns the main module's version from the build info, without the "v"
+// prefix to match release builds. Local builds without VCS info stay "dev".
+func resolveVersion(v string, readBuildInfo func() (*debug.BuildInfo, bool)) string {
+	if v != "dev" {
+		return v
+	}
+	if info, ok := readBuildInfo(); ok && info.Main.Version != "" && info.Main.Version != "(devel)" {
+		return strings.TrimPrefix(info.Main.Version, "v")
+	}
+	return v
+}
+
 func main() {
+	version = resolveVersion(version, debug.ReadBuildInfo)
 	if err := run(os.Args[1:], os.LookupEnv, os.Stderr); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return

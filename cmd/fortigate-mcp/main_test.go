@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"runtime/debug"
 	"strings"
 	"testing"
 )
@@ -45,5 +46,29 @@ func TestStartupErrors(t *testing.T) {
 				t.Errorf("err = %v, want containing %q", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func TestResolveVersion(t *testing.T) {
+	build := func(v string) func() (*debug.BuildInfo, bool) {
+		return func() (*debug.BuildInfo, bool) {
+			return &debug.BuildInfo{Main: debug.Module{Version: v}}, true
+		}
+	}
+	noInfo := func() (*debug.BuildInfo, bool) { return nil, false }
+	for _, tc := range []struct {
+		name, ldflags string
+		info          func() (*debug.BuildInfo, bool)
+		want          string
+	}{
+		{"release build keeps ldflags version", "0.1.0", build("v0.2.0"), "0.1.0"},
+		{"go install uses module version", "dev", build("v0.1.0"), "0.1.0"},
+		{"pseudo-version from a commit", "dev", build("v0.1.1-0.20261030081000-5ffbe37aaaaa"), "0.1.1-0.20261030081000-5ffbe37aaaaa"},
+		{"local build without VCS info", "dev", build("(devel)"), "dev"},
+		{"no build info", "dev", noInfo, "dev"},
+	} {
+		if got := resolveVersion(tc.ldflags, tc.info); got != tc.want {
+			t.Errorf("%s: got %q, want %q", tc.name, got, tc.want)
+		}
 	}
 }
