@@ -52,7 +52,7 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 - [ ] Record monitor/CMDB fixtures from 7.2/7.4/7.6 VMs into `test/fakefgt` and validate the FortiOS error-code table (`internal/fortios/response.go`)
 - [x] Integration suite (`test/integration`, `-tags integration`) for the acceptance flow below
 - [ ] Run the integration suite on 7.2, 7.4 and 7.6 VMs
-- [ ] Verify endpoints and parameters marked `TODO(M3)` or unverified: `fgt_policy_lookup` parameters and protocol encoding, `fgt_object_usage` (`monitor/system/object/usage`), `fgt_session_list` filters, `fgt_arp_table` (`monitor/network/arp`), request bodies of session close, tunnel up/down, SSL-VPN disconnect, firmware upgrade and config restore, whether 7.6 needs POST for config backup, and renaming entries via PUT
+- [ ] Verify endpoints and parameters marked `TODO(M3)` or unverified (read tools and object/policy writes have since been tested against a real FortiGate, but not each item here individually): `fgt_policy_lookup` parameters and protocol encoding, `fgt_object_usage` (`monitor/system/object/usage`), `fgt_session_list` filters, `fgt_arp_table` (`monitor/network/arp`), request bodies of session close, tunnel up/down, SSL-VPN disconnect, firmware upgrade and config restore, whether 7.6 needs POST for config backup, and renaming entries via PUT
 
 **Done when:** integration suite creates an address → group → policy → moves it → deletes all, with audit records, on 7.2, 7.4 and 7.6 VMs.
 
@@ -74,7 +74,7 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 - [x] Prompts: `troubleshoot_connectivity`, `audit_policies`, `onboard_site_to_site_vpn`
 - [x] Optional Prometheus `/metrics` (`--metrics`, http transport only), plus debug-level tool-call logging
 
-## M6 — Packaging & docs (1–2 days) — done (release workflow not yet run for real)
+## M6 — Packaging & docs (1–2 days) — done
 
 - [x] GoReleaser (multi-OS/arch), SBOM, checksums, signed artifacts (cosign keyless; `.github/workflows/release.yml` runs it after a Release Please PR is merged)
 - [x] Distroless Dockerfile (nonroot, read-only FS), example `docker run` with env/secrets

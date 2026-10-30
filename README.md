@@ -14,9 +14,13 @@ and managing FortiGate firewalls through the FortiOS REST API.
   hides every write tool.
 - Runs over stdio, or over streamable HTTP for shared deployments.
 
-> **Status:** pre-1.0. Tested against a simulated FortiGate, not yet
-> against real FortiOS 7.2/7.4/7.6 devices. See [docs/SPEC.md](docs/SPEC.md)
-> for the design and [docs/PLAN.md](docs/PLAN.md) for the roadmap.
+> **Status:** stable (1.x). The read tools and object and policy writes have
+> been tested against a real FortiGate, and every change is tested in CI
+> against a simulated one, including with the official TypeScript MCP SDK
+> client. The disruptive actions (reboot, shutdown, config restore, firmware
+> upgrade, clearing sessions, tunnel up/down) have only been tested against
+> the simulator, so try them on a lab device first. See
+> [docs/SPEC.md](docs/SPEC.md) for the design.
 
 ## Contents
 
@@ -66,7 +70,7 @@ The image signature is attached to the multi-platform image, so verify a
 release tag (or its digest) rather than a platform-specific image:
 
 ```sh
-cosign verify ghcr.io/galvill/go-fortigate-mcp-server:0.1.0 \
+cosign verify ghcr.io/galvill/go-fortigate-mcp-server:1.0.0 \
   --certificate-identity https://github.com/Galvill/go-fortigate-mcp-server/.github/workflows/release.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
@@ -217,7 +221,7 @@ Or with the container image:
         "-e", "FORTIGATE_HOST=https://10.0.0.1",
         "-e", "FORTIGATE_API_TOKEN_FILE=/run/secrets/fortigate_token",
         "-v", "/Users/me/.config/fortigate-mcp/token:/run/secrets/fortigate_token:ro",
-        "ghcr.io/galvill/go-fortigate-mcp-server:0.1",
+        "ghcr.io/galvill/go-fortigate-mcp-server:1",
         "-read-only"
       ]
     }
@@ -298,7 +302,7 @@ docker run -i --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
   -e FORTIGATE_HOST=https://10.0.0.1 \
   -e FORTIGATE_API_TOKEN_FILE=/run/secrets/fortigate_token \
   -v "$PWD/token:/run/secrets/fortigate_token:ro" \
-  ghcr.io/galvill/go-fortigate-mcp-server:0.1
+  ghcr.io/galvill/go-fortigate-mcp-server:1
 ```
 
 That serves stdio, for an MCP client that starts the container. To serve HTTP
@@ -314,7 +318,7 @@ docker run -d --name fortigate-mcp --read-only --cap-drop ALL --security-opt no-
   -e FORTIGATE_HOST=https://10.0.0.1 \
   -e FORTIGATE_API_TOKEN_FILE=/run/secrets/fortigate_token \
   -v "$PWD/token:/run/secrets/fortigate_token:ro" \
-  ghcr.io/galvill/go-fortigate-mcp-server:0.1
+  ghcr.io/galvill/go-fortigate-mcp-server:1
 ```
 
 The startup warning about a non-loopback address is expected here, since the
@@ -348,12 +352,13 @@ what clients and operators depend on:
 - flags, environment variables and config file keys;
 - audit log fields and metric names.
 
-From 1.0, removing or renaming any of these, adding a required tool argument,
-or narrowing an accepted value needs a major version. Additions, such as new
-tools, optional arguments or output fields, are minor versions. Tool
-descriptions may be reworded in any release. Before 1.0, breaking changes
-can land in minor versions and are listed under **⚠ BREAKING CHANGES** in
-[CHANGELOG.md](CHANGELOG.md).
+Removing or renaming any of these, adding a required tool argument, or
+narrowing an accepted value needs a new major version, listed under
+**⚠ BREAKING CHANGES** in [CHANGELOG.md](CHANGELOG.md). Additions, such as
+new tools, optional arguments or output fields, are minor versions. Tool
+descriptions may be reworded in any release. Container images are tagged
+with the full version (`1.2.3`), the minor (`1.2`) and the major (`1`), so
+pinning `:1` follows compatible releases.
 
 Tool schemas are snapshotted in
 [internal/server/testdata/tools.golden.json](internal/server/testdata/tools.golden.json),
@@ -367,7 +372,7 @@ Versions and [CHANGELOG.md](CHANGELOG.md) are managed by
 |---|---|
 | `fix: ...` | patch |
 | `feat: ...` | minor |
-| `feat!: ...` or a `BREAKING CHANGE:` footer | major (minor before 1.0) |
+| `feat!: ...` or a `BREAKING CHANGE:` footer | major |
 | `docs:`, `test:`, `ci:`, `chore:`, `refactor:` | none, and not in the changelog |
 
 Release Please keeps a release PR open with the next version and changelog.
