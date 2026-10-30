@@ -14,13 +14,7 @@ and managing FortiGate firewalls through the FortiOS REST API.
   hides every write tool.
 - Runs over stdio, or over streamable HTTP for shared deployments.
 
-> **Status:** stable (1.x). The read tools and object and policy writes have
-> been tested against a real FortiGate, and every change is tested in CI
-> against a simulated one, including with the official TypeScript MCP SDK
-> client. The disruptive actions (reboot, shutdown, config restore, firmware
-> upgrade, clearing sessions, tunnel up/down) have only been tested against
-> the simulator, so try them on a lab device first. See
-> [docs/SPEC.md](docs/SPEC.md) for the design.
+> **Status:** stable (1.x). See [docs/SPEC.md](docs/SPEC.md) for the design.
 
 ## Contents
 
