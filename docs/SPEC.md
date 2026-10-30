@@ -202,8 +202,10 @@ authentication of its own (§9).
 
 Every device-scoped tool accepts two optional parameters:
 
-- `device` (string): an inventory name. May be omitted when exactly one device
-  exists or `default_device` is set.
+- `device` (string): an inventory name. May be omitted when `default_device`
+  is set. When exactly one device is configured, tools (and prompts) have no
+  `device` parameter at all, so models aren't asked to choose; passing one is
+  rejected as an unknown argument.
 - `vdom` (string): overrides the device's default VDOM.
 
 The resolver looks up `device` in the merged inventory. Devices and their

@@ -164,8 +164,9 @@ devices:
 ```
 
 Environment variables override the file field by field, so the file can hold
-hosts while the environment supplies tokens. Tools take an optional `device`
-argument; `fgt_device_list` lists the configured devices. See
+hosts while the environment supplies tokens. With several devices, tools take
+an optional `device` argument; `fgt_device_list` lists the configured devices.
+With only one, tools have no `device` argument. See
 [SPEC §3](docs/SPEC.md#3-configuration) for every option, and run
 `fortigate-mcp -h` for the server flags.
 

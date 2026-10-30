@@ -24,9 +24,26 @@ import (
 
 var update = flag.Bool("update", false, "rewrite golden files")
 
+// connect serves two devices, so schemas include the device argument; see
+// connectSingle for one.
 func connect(t *testing.T, opts tools.Options) *mcp.ClientSession {
 	t.Helper()
-	inv, err := devices.New(&config.Config{Devices: []config.Device{toolstest.Device(t, "fw", fakefgt.New(t))}}, devices.Options{})
+	return connectDevices(t, opts, "fw", "fw2")
+}
+
+// connectSingle serves one device, so tools have no device argument.
+func connectSingle(t *testing.T, opts tools.Options) *mcp.ClientSession {
+	t.Helper()
+	return connectDevices(t, opts, "fw")
+}
+
+func connectDevices(t *testing.T, opts tools.Options, names ...string) *mcp.ClientSession {
+	t.Helper()
+	cfg := &config.Config{DefaultDevice: names[0]}
+	for _, name := range names {
+		cfg.Devices = append(cfg.Devices, toolstest.Device(t, name, fakefgt.New(t)))
+	}
+	inv, err := devices.New(cfg, devices.Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -281,4 +298,78 @@ func booleanSubschemas(schema any, path string) []string {
 		}
 	}
 	return found
+}
+
+func TestSingleDeviceHasNoDeviceArgument(t *testing.T) {
+	ctx := context.Background()
+	multi := map[string]map[string]any{}
+	for _, tool := range listTools(t, connect(t, tools.Options{})) {
+		multi[tool.Name] = schemaMap(t, tool.InputSchema)
+	}
+	cs := connectSingle(t, tools.Options{})
+	withDevice := 0
+	for _, tool := range listTools(t, cs) {
+		got, want := schemaMap(t, tool.InputSchema), multi[tool.Name]
+		props, _ := want["properties"].(map[string]any)
+		if _, ok := props["device"]; ok {
+			withDevice++
+			delete(props, "device")
+		}
+		// Apart from device, the schema must be what multi-device mode serves.
+		if gotJSON, wantJSON := mustJSON(t, got), mustJSON(t, want); gotJSON != wantJSON {
+			t.Errorf("%s: single-device schema %s, want %s", tool.Name, gotJSON, wantJSON)
+		}
+	}
+	if withDevice < 100 {
+		t.Errorf("only %d tools had a device argument in multi-device mode", withDevice)
+	}
+
+	// Calls go to the only device; naming it is now an unknown argument.
+	res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: "fgt_system_status", Arguments: map[string]any{}})
+	if err != nil || res.IsError {
+		t.Fatalf("call without device: %v %+v", err, res)
+	}
+	if res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: "fgt_system_status", Arguments: map[string]any{"device": "fw"}}); err == nil && !res.IsError {
+		t.Error("call with a device argument was accepted")
+	}
+
+	if !strings.Contains(cs.InitializeResult().Instructions, "no device argument") {
+		t.Errorf("instructions don't say tools have no device argument: %q", cs.InitializeResult().Instructions)
+	}
+	prompts, err := cs.ListPrompts(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range prompts.Prompts {
+		for _, a := range p.Arguments {
+			if a.Name == "device" {
+				t.Errorf("prompt %s has a device argument", p.Name)
+			}
+		}
+	}
+	got, err := cs.GetPrompt(ctx, &mcp.GetPromptParams{Name: "audit_policies", Arguments: map[string]string{"vdom": "dmz", "device": "fw"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if text := got.Messages[0].Content.(*mcp.TextContent).Text; strings.Contains(text, "device fw") || !strings.Contains(text, "pass vdom as arguments") {
+		t.Errorf("audit_policies text should only mention the vdom: %q", text)
+	}
+}
+
+func schemaMap(t *testing.T, schema any) map[string]any {
+	t.Helper()
+	var m map[string]any
+	if err := json.Unmarshal([]byte(mustJSON(t, schema)), &m); err != nil {
+		t.Fatal(err)
+	}
+	return m
+}
+
+func mustJSON(t *testing.T, v any) string {
+	t.Helper()
+	b, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
 }
