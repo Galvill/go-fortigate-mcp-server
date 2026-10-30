@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/Galvill/go-fortigate-mcp-server/compare/v0.1.0...v0.1.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* make every tool schema property an object for strict MCP clients ([#5](https://github.com/Galvill/go-fortigate-mcp-server/issues/5)) ([705400f](https://github.com/Galvill/go-fortigate-mcp-server/commit/705400f8803d94d13da2f1aab13005421c8156fe))
+* report the module version for go install builds ([#4](https://github.com/Galvill/go-fortigate-mcp-server/issues/4)) ([1218a43](https://github.com/Galvill/go-fortigate-mcp-server/commit/1218a43de7b196d96a9150efb7e35106c5df0dad))
+
 ## 0.1.0 (2026-10-29)
 
 
