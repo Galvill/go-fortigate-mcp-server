@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/Galvill/go-fortigate-mcp-server/compare/v0.2.0...v1.0.0) (2026-10-30)
+
+
+### Miscellaneous Chores
+
+* prepare the 1.0.0 release ([#10](https://github.com/Galvill/go-fortigate-mcp-server/issues/10)) ([3ea7776](https://github.com/Galvill/go-fortigate-mcp-server/commit/3ea77763a2693a37326b1bdf1913af057456c071))
+
 ## [0.2.0](https://github.com/Galvill/go-fortigate-mcp-server/compare/v0.1.1...v0.2.0) (2026-10-30)
 
 
