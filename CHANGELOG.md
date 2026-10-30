@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/Galvill/go-fortigate-mcp-server/compare/v0.1.1...v0.2.0) (2026-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop the device argument from tools when only one FortiGate is configured ([#8](https://github.com/Galvill/go-fortigate-mcp-server/issues/8))
+
+### Features
+
+* drop the device argument from tools when only one FortiGate is configured ([#8](https://github.com/Galvill/go-fortigate-mcp-server/issues/8)) ([c7e402f](https://github.com/Galvill/go-fortigate-mcp-server/commit/c7e402fe81cbf713960c999c2b84c26ee61de478))
+
 ## [0.1.1](https://github.com/Galvill/go-fortigate-mcp-server/compare/v0.1.0...v0.1.1) (2026-10-30)
 
 
