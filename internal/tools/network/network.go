@@ -66,6 +66,6 @@ var staticRoutes = tools.Table{
 // SDWANStatusOutput is the result of fgt_sdwan_status.
 type SDWANStatusOutput struct {
 	tools.Scope
-	HealthChecks any `json:"health_checks"`
-	Members      any `json:"members"`
+	HealthChecks any `json:"health_checks" jsonschema:"SD-WAN health check status (latency, jitter, packet loss per member), as the device sent it."`
+	Members      any `json:"members" jsonschema:"SD-WAN member status, as the device sent it."`
 }

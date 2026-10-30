@@ -63,7 +63,7 @@ type ItemOutput struct {
 // ResultsOutput is the result of tools returning monitor data as-is.
 type ResultsOutput struct {
 	Scope
-	Results   any  `json:"results"`
+	Results   any  `json:"results" jsonschema:"Data returned by the FortiOS endpoint, as the device sent it."`
 	Truncated bool `json:"truncated,omitempty" jsonschema:"True if the results were cut to fit the size limit."`
 }
 
