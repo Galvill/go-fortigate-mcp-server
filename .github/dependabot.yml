@@ -20,6 +20,15 @@ updates:
       actions:
         update-types: [minor, patch]
 
+  # The TypeScript MCP SDK used by the conformance test. Newer SDKs can be
+  # stricter, so updates are worth testing as they come.
+  - package-ecosystem: npm
+    directory: /test/conformance
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: test(deps)
+
   - package-ecosystem: docker
     directory: /
     schedule:
