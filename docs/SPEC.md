@@ -1,6 +1,6 @@
 # go-fortigate-mcp-server — Specification
 
-Status: Draft v0.1 · 2026-10-28
+Status: implemented in v1.0.0 · 2026-10-30
 
 ## 1. Purpose
 

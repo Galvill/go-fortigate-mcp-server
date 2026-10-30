@@ -74,7 +74,7 @@ Companion to [SPEC.md](SPEC.md). Each milestone ends in a usable, tested state.
 - [x] Prompts: `troubleshoot_connectivity`, `audit_policies`, `onboard_site_to_site_vpn`
 - [x] Optional Prometheus `/metrics` (`--metrics`, http transport only), plus debug-level tool-call logging
 
-## M6 — Packaging & docs (1–2 days) — done (release workflow not yet run for real)
+## M6 — Packaging & docs (1–2 days) — done
 
 - [x] GoReleaser (multi-OS/arch), SBOM, checksums, signed artifacts (cosign keyless; `.github/workflows/release.yml` runs it after a Release Please PR is merged)
 - [x] Distroless Dockerfile (nonroot, read-only FS), example `docker run` with env/secrets

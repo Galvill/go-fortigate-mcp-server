@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-Security fixes go into the latest release. Before 1.0, only the latest minor
-version is supported.
+Security fixes go into the latest release, so only the latest minor version
+of the current major version is supported.
 
 ## Reporting a vulnerability
 
