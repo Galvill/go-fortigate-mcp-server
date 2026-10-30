@@ -12,7 +12,14 @@ Requires Go 1.26+.
 make test   # go test -race ./...
 make lint   # golangci-lint
 make docs   # after changing tools: regenerate the schema snapshot and docs/TOOLS.md
+make conformance  # needs Node.js: checks the server with the TypeScript MCP SDK client
 ```
+
+`make conformance` runs the official TypeScript MCP SDK client against the
+server: it lists and reads everything and calls every read-only tool that
+takes no arguments, and the SDK rejects any schema or output it considers
+invalid. A new tool of that kind must have its FortiOS endpoint seeded in
+`test/conformance/conformance_test.go`. CI runs it on every pull request.
 
 Tool names and schemas are part of the public API (see
 [Versioning](README.md#versioning)). The schema snapshot test fails when they

@@ -1,0 +1,9 @@
+{
+  "name": "fortigate-mcp-conformance",
+  "private": true,
+  "description": "Drives the server with the official TypeScript MCP SDK client; run through conformance_test.go.",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2"
+  }
+}

@@ -4,7 +4,7 @@ LDFLAGS       := -s -w -X main.version=$(VERSION)
 GOLANGCI_LINT := go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
 GOVULNCHECK   := go run golang.org/x/vuln/cmd/govulncheck@v1.9.0
 
-.PHONY: all build test lint fmt vuln tidy docs docker snapshot clean
+.PHONY: all build test lint fmt vuln tidy docs conformance docker snapshot clean
 
 all: lint test build
 
@@ -28,6 +28,10 @@ tidy:
 
 docs:
 	go test ./internal/server -run 'Golden|Catalog' -update
+
+conformance:
+	cd test/conformance && npm ci --ignore-scripts --no-audit --no-fund
+	MCP_CONFORMANCE=1 go test -count=1 -v ./test/conformance/
 
 docker:
 	docker build --build-arg VERSION=$(VERSION) -t $(BINARY):$(VERSION) .
