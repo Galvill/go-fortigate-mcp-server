@@ -377,13 +377,14 @@ a commit.
 ## Development
 
 ```sh
-make build     # bin/fortigate-mcp
-make test      # go test -race ./...
-make lint      # golangci-lint
-make vuln      # govulncheck
-make docs      # regenerate tools.golden.json and docs/TOOLS.md after tool changes
-make docker    # build the container image from source
-make snapshot  # local GoReleaser dry run (needs goreleaser and syft)
+make build        # bin/fortigate-mcp
+make test         # go test -race ./...
+make lint         # golangci-lint
+make vuln         # govulncheck
+make docs         # regenerate tools.golden.json and docs/TOOLS.md after tool changes
+make conformance  # drive the server with the TypeScript MCP SDK client (needs Node.js)
+make docker       # build the container image from source
+make snapshot     # local GoReleaser dry run (needs goreleaser and syft)
 ```
 
 Integration tests run against a lab FortiGate-VM with
