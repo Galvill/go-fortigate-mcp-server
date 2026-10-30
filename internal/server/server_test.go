@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -224,4 +225,60 @@ func TestResourcesRegistered(t *testing.T) {
 	if len(templates.ResourceTemplates) != 3 {
 		t.Errorf("templates = %d, want 3 with a backup dir", len(templates.ResourceTemplates))
 	}
+}
+
+// Some clients, including those built on the TypeScript MCP SDK, reject a
+// tools/list response whose schemas use a boolean (true/false) where a
+// property, item or sub-schema is expected. A field typed any with no
+// jsonschema description is inferred as true; describe it to get an object.
+func TestSchemasHaveNoBooleanSubschemas(t *testing.T) {
+	for _, tool := range listTools(t, connect(t, tools.Options{BackupDir: t.TempDir()})) {
+		for name, schema := range map[string]any{"inputSchema": tool.InputSchema, "outputSchema": tool.OutputSchema} {
+			if schema == nil {
+				continue
+			}
+			b, err := json.Marshal(schema)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var v any
+			if err := json.Unmarshal(b, &v); err != nil {
+				t.Fatal(err)
+			}
+			for _, path := range booleanSubschemas(v, tool.Name+"."+name) {
+				t.Errorf("%s is a boolean schema; give the field a jsonschema description", path)
+			}
+		}
+	}
+}
+
+// booleanSubschemas returns the paths of boolean sub-schemas in a JSON
+// Schema. additionalProperties may be a boolean.
+func booleanSubschemas(schema any, path string) []string {
+	s, ok := schema.(map[string]any)
+	if !ok {
+		if _, isBool := schema.(bool); isBool {
+			return []string{path}
+		}
+		return nil
+	}
+	var found []string
+	for _, key := range []string{"properties", "patternProperties", "$defs", "definitions"} {
+		m, _ := s[key].(map[string]any)
+		for name, sub := range m {
+			found = append(found, booleanSubschemas(sub, path+"."+key+"."+name)...)
+		}
+	}
+	for _, key := range []string{"items", "not", "contains"} {
+		if sub, ok := s[key]; ok {
+			found = append(found, booleanSubschemas(sub, path+"."+key)...)
+		}
+	}
+	for _, key := range []string{"anyOf", "oneOf", "allOf", "prefixItems"} {
+		list, _ := s[key].([]any)
+		for i, sub := range list {
+			found = append(found, booleanSubschemas(sub, fmt.Sprintf("%s.%s[%d]", path, key, i))...)
+		}
+	}
+	return found
 }
