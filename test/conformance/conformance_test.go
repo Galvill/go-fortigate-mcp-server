@@ -41,10 +41,21 @@ func TestTypeScriptSDKClient(t *testing.T) {
 	if _, err := os.Stat("node_modules/@modelcontextprotocol/sdk"); err != nil {
 		t.Fatalf("TypeScript SDK not installed; run npm ci in test/conformance: %v", err)
 	}
+	// Tool schemas differ by mode: with one device they have no device argument.
+	t.Run("one device", func(t *testing.T) { runClient(t, "fw") })
+	t.Run("two devices", func(t *testing.T) { runClient(t, "fw", "fw2") })
+}
 
-	fgt := fakefgt.New(t)
-	seed(fgt)
-	inv, err := devices.New(&config.Config{Devices: []config.Device{toolstest.Device(t, "fw", fgt)}}, devices.Options{})
+// runClient serves the given fake devices, the first being the default, and
+// checks the server with client.mjs.
+func runClient(t *testing.T, names ...string) {
+	cfg := &config.Config{DefaultDevice: names[0]}
+	for _, name := range names {
+		fgt := fakefgt.New(t)
+		seed(fgt)
+		cfg.Devices = append(cfg.Devices, toolstest.Device(t, name, fgt))
+	}
+	inv, err := devices.New(cfg, devices.Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +92,7 @@ func TestTypeScriptSDKClient(t *testing.T) {
 		t.Fatalf("client failed: %v", runErr)
 	}
 	// Guard against a vacuous pass, e.g. if the tool or call selection breaks.
-	if r.Counts.Tools < 100 || r.Counts.ToolCalls < 30 || r.Counts.Prompts < 3 || r.Counts.Resources < 3 || r.Counts.ResourceTemplates < 3 {
+	if r.Counts.Tools < 100 || r.Counts.ToolCalls < 30 || r.Counts.Prompts < 3 || r.Counts.Resources < 1+2*len(names) || r.Counts.ResourceTemplates < 3 {
 		t.Errorf("client exercised too little of the server: %+v", r.Counts)
 	}
 }

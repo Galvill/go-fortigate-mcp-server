@@ -194,9 +194,13 @@ type DeviceInfo struct {
 }
 
 func registerDeviceList(r *tools.Registry) {
+	desc := "List the FortiGates this server manages, with their default VDOM and, when reachable, hostname, model, FortiOS version and serial. Use the name as the device argument of other tools."
+	if r.SingleDevice() {
+		desc = "Show the FortiGate this server manages: its default VDOM and, when reachable, hostname, model, FortiOS version and serial."
+	}
 	tools.AddRead(r, tools.System, &mcp.Tool{
 		Name:        "fgt_device_list",
-		Description: "List the FortiGates this server manages, with their default VDOM and, when reachable, hostname, model, FortiOS version and serial. Use the name as the device argument of other tools.",
+		Description: desc,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, DeviceListOutput, error) {
 		inv := r.Inventory()
 		names := inv.Names()

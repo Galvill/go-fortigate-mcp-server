@@ -5,16 +5,28 @@ package prompts
 import (
 	"context"
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// Register adds the prompts to s.
-func Register(s *mcp.Server) {
+// Register adds the prompts to s. With a single device, prompts have no
+// device argument, matching the tools.
+func Register(s *mcp.Server, singleDevice bool) {
 	for _, p := range all {
+		if singleDevice {
+			pr := *p.prompt
+			pr.Arguments = slices.DeleteFunc(slices.Clone(pr.Arguments), func(a *mcp.PromptArgument) bool { return a.Name == "device" })
+			p.prompt = &pr
+		}
 		s.AddPrompt(p.prompt, func(_ context.Context, req *mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
 			args := req.Params.Arguments
+			if singleDevice {
+				args = maps.Clone(args)
+				delete(args, "device")
+			}
 			for _, a := range p.prompt.Arguments {
 				if a.Required && strings.TrimSpace(args[a.Name]) == "" {
 					return nil, fmt.Errorf("argument %s is required", a.Name)
@@ -149,17 +161,19 @@ Plan first, then wait for explicit approval before any change:
 
 // target describes the device/VDOM arguments for the prompt text.
 func target(a map[string]string) string {
-	var parts []string
+	var parts, params []string
 	if a["device"] != "" {
 		parts = append(parts, "device "+a["device"])
+		params = append(params, "device")
 	}
 	if a["vdom"] != "" {
 		parts = append(parts, "VDOM "+a["vdom"])
+		params = append(params, "vdom")
 	}
 	if len(parts) == 0 {
 		return " on the default device"
 	}
-	return " on " + strings.Join(parts, ", ") + " (pass these as the device/vdom arguments of every tool)"
+	return " on " + strings.Join(parts, ", ") + " (pass " + strings.Join(params, " and ") + " as arguments of every tool)"
 }
 
 func portArg(port, prefix string) string {

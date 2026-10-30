@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/galvill/go-fortigate-mcp-server/internal/audit"
@@ -80,6 +81,31 @@ func (r *Registry) MaxResultBytes() int { return r.maxBytes }
 // Inventory returns the device inventory.
 func (r *Registry) Inventory() *devices.Inventory { return r.inv }
 
+// SingleDevice reports whether only one FortiGate is configured. Tools then
+// have no device argument, since there is nothing to choose.
+func (r *Registry) SingleDevice() bool { return len(r.inv.Names()) == 1 }
+
+// omitDevice gives t In's inferred input schema without the device property
+// when only one device is configured. Calls still resolve to that device,
+// since an empty device means the default one.
+func omitDevice[In any](r *Registry, t *mcp.Tool) {
+	if !r.SingleDevice() || t.InputSchema != nil {
+		return
+	}
+	schema, err := jsonschema.For[In](&jsonschema.ForOptions{})
+	if err != nil {
+		panic(fmt.Sprintf("tool %s: input schema: %v", t.Name, err)) // as mcp.AddTool does
+	}
+	if _, ok := schema.Properties["device"]; !ok {
+		return
+	}
+	delete(schema.Properties, "device")
+	isDevice := func(name string) bool { return name == "device" }
+	schema.Required = slices.DeleteFunc(schema.Required, isDevice)
+	schema.PropertyOrder = slices.DeleteFunc(schema.PropertyOrder, isDevice)
+	t.InputSchema = schema
+}
+
 func (r *Registry) isEnabled(toolset string) bool {
 	return r.enabled == nil || r.enabled[toolset]
 }
@@ -95,6 +121,7 @@ func AddRead[In, Out any](r *Registry, toolset string, t *mcp.Tool, h mcp.ToolHa
 	}
 	t.Annotations.ReadOnlyHint = true
 	t.Annotations.IdempotentHint = true
+	omitDevice[In](r, t)
 	mcp.AddTool(r.server, t, h)
 }
 
@@ -129,6 +156,7 @@ func AddWrite[In, Out any](r *Registry, toolset string, kind WriteKind, t *mcp.T
 	t.Annotations.DestructiveHint = &destructive
 	t.Annotations.IdempotentHint = kind == Update || kind == Delete
 	name := t.Name
+	omitDevice[In](r, t)
 	mcp.AddTool(r.server, t, func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, Out, error) {
 		info := &audit.Info{Tool: name}
 		if req != nil && req.Session != nil {
